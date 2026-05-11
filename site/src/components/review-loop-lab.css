@@ -142,11 +142,19 @@
   cursor: pointer;
 }
 
-.review-lab button:hover,
-.review-lab button.is-selected {
+.review-lab button:hover {
   border-color: var(--accent);
   color: var(--accent-strong);
-  background: #eef8f4;
+  background: #f6fbf8;
+}
+
+.review-lab button.is-selected,
+.review-lab button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  background: #dff3ec;
+  box-shadow: inset 0 0 0 1px var(--accent);
+  font-weight: 800;
 }
 
 .review-lab__evidence-toggle {
@@ -240,8 +248,10 @@
   padding: 0 8px;
 }
 
-.review-lab__self-check li.is-self-marked button {
+.review-lab__self-check li.is-self-marked button,
+.review-lab__self-check li button[aria-pressed="true"] {
   color: var(--accent-strong);
+  font-weight: 800;
 }
 
 .review-lab__self-mark-count {

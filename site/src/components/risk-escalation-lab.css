@@ -97,11 +97,19 @@
   cursor: pointer;
 }
 
-.risk-lab button:hover,
-.risk-lab button.is-selected {
+.risk-lab button:hover {
   border-color: var(--accent);
   color: var(--accent-strong);
-  background: #eef8f4;
+  background: #f6fbf8;
+}
+
+.risk-lab button.is-selected,
+.risk-lab button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  background: #dff3ec;
+  box-shadow: inset 0 0 0 1px var(--accent);
+  font-weight: 800;
 }
 
 .risk-lab__complication {
@@ -201,8 +209,10 @@
   padding: 0 8px;
 }
 
-.risk-lab__self-check li.is-self-marked button {
+.risk-lab__self-check li.is-self-marked button,
+.risk-lab__self-check li button[aria-pressed="true"] {
   color: var(--accent-strong);
+  font-weight: 800;
 }
 
 .risk-lab__self-mark-count {

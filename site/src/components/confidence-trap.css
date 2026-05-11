@@ -95,11 +95,19 @@
   cursor: pointer;
 }
 
-.confidence-trap button:hover,
-.confidence-trap button.is-selected {
+.confidence-trap button:hover {
   border-color: var(--accent);
   color: var(--accent-strong);
-  background: #eef8f4;
+  background: #f6fbf8;
+}
+
+.confidence-trap button.is-selected,
+.confidence-trap button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  background: #dff3ec;
+  box-shadow: inset 0 0 0 1px var(--accent);
+  font-weight: 800;
 }
 
 .confidence-trap__slider {
@@ -210,8 +218,10 @@
   color: var(--ink);
 }
 
-.confidence-trap__self-check li.is-self-marked button {
+.confidence-trap__self-check li.is-self-marked button,
+.confidence-trap__self-check li button[aria-pressed="true"] {
   color: var(--accent-strong);
+  font-weight: 800;
 }
 
 .confidence-trap__self-check li.is-self-marked {

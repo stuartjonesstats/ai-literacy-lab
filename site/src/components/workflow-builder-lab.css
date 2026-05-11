@@ -100,12 +100,20 @@
   cursor: pointer;
 }
 
-.workflow-lab button:hover,
+.workflow-lab button:hover {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  background: #f6fbf8;
+}
+
 .workflow-lab button.is-selected,
+.workflow-lab button[aria-pressed="true"],
 .workflow-lab__stage-list article.is-selected > button {
   border-color: var(--accent);
   color: var(--accent-strong);
-  background: #eef8f4;
+  background: #dff3ec;
+  box-shadow: inset 0 0 0 1px var(--accent);
+  font-weight: 800;
 }
 
 .workflow-lab__stage-list article {
@@ -231,8 +239,10 @@
   padding: 0 8px;
 }
 
-.workflow-lab__self-check li.is-self-marked button {
+.workflow-lab__self-check li.is-self-marked button,
+.workflow-lab__self-check li button[aria-pressed="true"] {
   color: var(--accent-strong);
+  font-weight: 800;
 }
 
 .workflow-lab__self-check li svg {

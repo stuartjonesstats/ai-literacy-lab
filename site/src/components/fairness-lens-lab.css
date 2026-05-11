@@ -104,11 +104,19 @@
   cursor: pointer;
 }
 
-.fairness-lab button:hover,
-.fairness-lab button.is-selected {
+.fairness-lab button:hover {
   border-color: var(--accent);
   color: var(--accent-strong);
-  background: #eef8f4;
+  background: #f6fbf8;
+}
+
+.fairness-lab button.is-selected,
+.fairness-lab button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  background: #dff3ec;
+  box-shadow: inset 0 0 0 1px var(--accent);
+  font-weight: 800;
 }
 
 .fairness-lab__rewrite {
@@ -198,8 +206,10 @@
   padding: 0 8px;
 }
 
-.fairness-lab__self-check li.is-self-marked button {
+.fairness-lab__self-check li.is-self-marked button,
+.fairness-lab__self-check li button[aria-pressed="true"] {
   color: var(--accent-strong);
+  font-weight: 800;
 }
 
 .fairness-lab__self-check li svg {
