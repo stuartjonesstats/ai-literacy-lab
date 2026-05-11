@@ -34,6 +34,7 @@
 .risk-lab__scenario,
 .risk-lab__case,
 .risk-lab__note,
+.risk-lab__challenge,
 .risk-lab__self-check,
 .risk-lab__debrief {
   border: 1px solid var(--line);
@@ -43,6 +44,7 @@
 }
 
 .risk-lab__scenario,
+.risk-lab__challenge,
 .risk-lab__self-check {
   background: #f8fbf9;
 }
@@ -122,6 +124,16 @@
   margin: 0 0 6px;
 }
 
+.risk-lab__tradeoff {
+  border-left: 4px solid var(--accent);
+  margin: 14px 0;
+  padding-left: 12px;
+}
+
+.risk-lab__tradeoff h4 {
+  margin: 0 0 6px;
+}
+
 .risk-lab__note {
   display: grid;
   gap: 10px;
@@ -153,6 +165,40 @@
 
 .risk-lab__note small.is-passed {
   color: var(--accent-strong);
+}
+
+.risk-lab__challenge {
+  display: grid;
+  gap: 12px;
+}
+
+.risk-lab__challenge-head {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 10px;
+}
+
+.risk-lab__challenge-head svg {
+  color: var(--accent-strong);
+  margin-top: 3px;
+}
+
+.risk-lab__challenge-head h3 {
+  margin: 0 0 6px;
+}
+
+.risk-lab__challenge-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.risk-lab__challenge-feedback {
+  border-left: 4px solid var(--accent);
+  color: var(--accent-strong);
+  font-weight: 700;
+  margin: 0;
+  padding-left: 12px;
 }
 
 .risk-lab__self-check-header {
@@ -286,7 +332,8 @@
 
 @media (max-width: 760px) {
   .risk-lab__action-grid,
-  .risk-lab__dimension-grid {
+  .risk-lab__dimension-grid,
+  .risk-lab__challenge-grid {
     grid-template-columns: 1fr;
   }
 }

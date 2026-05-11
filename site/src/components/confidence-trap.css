@@ -35,6 +35,7 @@
 .confidence-trap__draft,
 .confidence-trap__evidence,
 .confidence-trap__claim,
+.confidence-trap__claim-feedback,
 .confidence-trap__debrief {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -53,6 +54,35 @@
 .confidence-trap__evidence ol {
   margin: 0;
   padding-left: 24px;
+}
+
+.confidence-trap__claim-feedback {
+  background: #fbfaf5;
+}
+
+.confidence-trap__claim-feedback ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.confidence-trap__claim-feedback li {
+  border-top: 1px solid var(--line);
+  padding: 10px 0;
+}
+
+.confidence-trap__claim-feedback li:first-child {
+  border-top: 0;
+}
+
+.confidence-trap__claim-feedback strong,
+.confidence-trap__claim-feedback span {
+  display: block;
+}
+
+.confidence-trap__claim-feedback span {
+  color: var(--muted);
+  margin-top: 4px;
 }
 
 .confidence-trap__fieldset {

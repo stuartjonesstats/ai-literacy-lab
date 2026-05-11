@@ -25,7 +25,7 @@ const actions = [
   {
     id: 'redact',
     label: 'Redact first',
-    description: 'Remove direct identifiers such as names, emails, IDs, or exact records.',
+    description: 'Remove direct identifiers such as names, emails, case IDs, or exact records.',
   },
   {
     id: 'abstract',
@@ -37,14 +37,14 @@ const actions = [
     id: 'guidance',
     label: 'Approved process first',
     description:
-      'Stop and use an approved route before putting this information into AI.',
+      'Stop and use an approved office route before putting this information into AI.',
   },
 ];
 
 const riskFlags = [
   { id: 'identifier', label: 'Direct identifier' },
-  { id: 'account', label: 'Account or billing detail' },
-  { id: 'business', label: 'Business-sensitive detail' },
+  { id: 'record', label: 'Case or record detail' },
+  { id: 'office', label: 'Internal or office-sensitive detail' },
   { id: 'urgency', label: 'Urgency or deadline cue' },
   { id: 'service', label: 'Sensitive service context' },
   { id: 'privacy', label: 'Privacy concern' },
@@ -52,102 +52,102 @@ const riskFlags = [
 
 const messages = [
   {
-    id: 'login',
+    id: 'renewal',
     title: 'Message 1',
-    text: 'I cannot log in after the update. My account email is jordan.lee@example.org.',
+    text: 'My benefits renewal link does not work. My case number is A-104928 and my email is maya.rivera@example.org.',
     expectedAction: 'redact',
-    expectedFlags: ['identifier'],
+    expectedFlags: ['identifier', 'record', 'service'],
     safer:
-      'User reports login failure after an update. Remove the account email before using the message.',
+      'Resident reports a benefits renewal link failure. Remove the email address and case number before theme analysis.',
     feedback:
-      'The product issue is useful, but the email address is not needed for theme analysis.',
+      'The service problem is useful, but the email address and case number are not needed for inbox theme analysis.',
   },
   {
-    id: 'billing',
+    id: 'kiosk',
     title: 'Message 2',
-    text: 'The billing screen is confusing. I was charged twice on invoice INV-44721.',
+    text: 'The lobby check-in kiosk is confusing. It asked me to scan the same document twice.',
     expectedAction: 'abstract',
-    expectedFlags: ['account'],
+    expectedFlags: ['service'],
     safer:
-      'User reports duplicate billing and confusion with the billing screen. Remove invoice-specific details.',
+      'Resident reports confusion with the lobby check-in kiosk and repeated document scanning.',
     feedback:
-      'The invoice reference is not needed to summarize the feedback theme.',
+      'The service-design theme can be summarized without asking the AI to inspect the resident document itself.',
   },
   {
-    id: 'agency',
+    id: 'accommodation',
     title: 'Message 3',
-    text: 'Our agency is considering switching vendors if the accessibility issue is not fixed by Friday.',
-    expectedAction: 'abstract',
-    expectedFlags: ['business', 'urgency'],
-    safer:
-      'Organization reports an unresolved accessibility issue with a near-term deadline.',
-    feedback:
-      'The vendor-switching detail and deadline may matter for follow-up, but they should be separated from generic theme analysis.',
-  },
-  {
-    id: 'budget',
-    title: 'Message 4',
-    text: 'The app crashes whenever I upload the quarterly budget workbook.',
-    expectedAction: 'abstract',
-    expectedFlags: ['business'],
-    safer:
-      'User reports crashes when uploading a large or structured spreadsheet. Avoid exposing the budget context unless approved.',
-    feedback:
-      'The crash theme is useful. The budget-workbook context may reveal internal business material.',
-  },
-  {
-    id: 'case-manager',
-    title: 'Message 5',
-    text: 'My case manager told me to use this portal, but I am worried my information is visible to other users.',
+    text: 'The disability accommodation form is not compatible with my screen reader, and my hearing is Friday.',
     expectedAction: 'guidance',
-    expectedFlags: ['service', 'privacy'],
+    expectedFlags: ['service', 'urgency'],
     safer:
-      'User reports concern that personal information may be visible to other users. Route for approved privacy or support follow-up.',
+      'Resident reports an accessibility barrier with a near-term hearing deadline. Route through the approved accommodation process.',
     feedback:
-      'This message combines a possible sensitive service context with a privacy concern. Treat it as more than ordinary product feedback.',
+      'The accessibility barrier may be a theme, but the deadline and accommodation context need approved follow-up, not generic summarization.',
+  },
+  {
+    id: 'public-records',
+    title: 'Message 4',
+    text: 'The public-records request portal times out when I upload exhibit PDF files for request PRR-22017.',
+    expectedAction: 'abstract',
+    expectedFlags: ['record'],
+    safer:
+      'Requester reports portal timeouts when uploading PDF files. Remove the request ID before AI-assisted theme analysis.',
+    feedback:
+      'The upload failure is useful. The request ID is not needed for a general service-improvement summary.',
+  },
+  {
+    id: 'shelter',
+    title: 'Message 5',
+    text: 'Please add a note to my housing case: I am staying at Safe Harbor shelter after domestic violence and cannot receive mail at my old address.',
+    expectedAction: 'guidance',
+    expectedFlags: ['identifier', 'record', 'service', 'privacy'],
+    safer:
+      'Resident provides sensitive housing and safety information for a case record. Use the approved case-management route, not a general AI tool.',
+    feedback:
+      'This is not just feedback. It is sensitive case information that belongs in an approved system and workflow.',
   },
 ];
 
 const rubricChecks = [
   {
     id: 'no-direct-identifiers',
-    label: 'Removes direct identifiers and account specifics',
+    label: 'Removes direct identifiers and case specifics',
     test: (packet, prompt) => {
       const combined = `${packet} ${prompt}`;
       return (
         combined.trim().length > 80 &&
         !includesAny(combined, [
-        '@',
-        'jordan.lee',
-        'example.org',
-        'inv-44721',
-        'invoice inv',
+          '@',
+          'maya.rivera',
+          'example.org',
+          'a-104928',
+          'prr-22017',
+          'safe harbor',
         ])
       );
     },
-    why: 'The summary task does not require account emails or invoice numbers.',
+    why: 'The summary task does not require emails, case numbers, request IDs, or shelter names.',
   },
   {
     id: 'preserves-themes',
-    label: 'Preserves useful product themes',
+    label: 'Preserves useful public-service themes',
     test: (packet) =>
       countMatches(packet, [
-        'login',
-        'account',
-        'billing',
-        'payment',
+        'renewal',
+        'benefits',
+        'kiosk',
+        'document',
         'accessibility',
         'screen reader',
         'upload',
         'file',
-        'spreadsheet',
-        'document',
-        'visible',
+        'portal',
+        'housing',
         'privacy',
         'information',
         'personal',
       ]) >= 3,
-    why: 'Minimization should not erase the business purpose of the task.',
+    why: 'Minimization should not erase the public-service purpose of the task.',
   },
   {
     id: 'separates-urgent',
@@ -160,6 +160,9 @@ const rubricChecks = [
         'deadline',
         'route',
         'escalate',
+        'approved',
+        'accommodation',
+        'case',
       ]),
     why: 'Some cases need routing or follow-up, not just aggregation into themes.',
   },
@@ -175,7 +178,7 @@ const rubricChecks = [
         'only use provided',
         'provided information',
       ]) &&
-      includesAny(prompt, ['identity', 'legal', 'medical', 'financial', 'account', 'sensitive', 'personal']),
+      includesAny(prompt, ['identity', 'legal', 'medical', 'financial', 'case', 'record', 'sensitive', 'personal']),
     why: 'A safer prompt sets boundaries on what the model should not infer.',
   },
   {
@@ -214,6 +217,7 @@ export default function DataBoundaryLab() {
   const [selectedFlags, setSelectedFlags] = useState({});
   const [sanitizedPacket, setSanitizedPacket] = useState('');
   const [saferPrompt, setSaferPrompt] = useState('');
+  const [judgmentResponse, setJudgmentResponse] = useState('');
   const [selfMarked, setSelfMarked] = useState({});
   const [showDebrief, setShowDebrief] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
@@ -271,11 +275,11 @@ export default function DataBoundaryLab() {
       analyzeTextQuality(sanitizedPacket, {
         minChars: 110,
         minWords: 18,
-        requiredAny: ['login', 'billing', 'privacy', 'accessibility', 'upload'],
+        requiredAny: ['benefits', 'kiosk', 'privacy', 'accessibility', 'upload', 'housing'],
         requiredGroups: [
           {
-            terms: ['login', 'billing', 'accessibility', 'upload', 'privacy'],
-            message: 'Preserve the useful product or service themes.',
+            terms: ['benefits', 'renewal', 'kiosk', 'accessibility', 'upload', 'privacy', 'housing'],
+            message: 'Preserve the useful public-service themes.',
           },
           {
             terms: ['remove', 'redact', 'abstract', 'generalize', 'route'],
@@ -308,52 +312,76 @@ export default function DataBoundaryLab() {
       }),
     [saferPrompt],
   );
+  const judgmentQuality = useMemo(
+    () =>
+      analyzeTextQuality(judgmentResponse, {
+        minChars: 130,
+        minWords: 24,
+        requiredAny: ['minimum', 'route', 'approved', 'exclude', 'because'],
+        requiredGroups: [
+          {
+            terms: ['minimum', 'least', 'only', 'exclude', 'remove'],
+            message: 'Name what belongs in the minimum viable data packet.',
+          },
+          {
+            terms: ['approved', 'route', 'case', 'accommodation', 'privacy', 'escalate'],
+            message: 'Name what should use an approved route instead of the AI packet.',
+          },
+          {
+            terms: ['because', 'so that', 'risk', 'purpose', 'needed'],
+            message: 'Defend the judgment, not just the choice.',
+          },
+        ],
+      }),
+    [judgmentResponse],
+  );
   const criticalDataHints = useMemo(() => {
     const hints = [];
     const flags = (messageId) => selectedFlags[messageId] || [];
 
-    if (!['redact', 'abstract', 'guidance'].includes(selectedActions.login)) {
-      hints.push('Message 1: do not use the account email as-is.');
+    if (!['redact', 'abstract', 'guidance'].includes(selectedActions.renewal)) {
+      hints.push('Message 1: do not use the email address or case number as-is.');
     }
-    if (!flags('login').includes('identifier')) {
-      hints.push('Message 1: flag the email address as a direct identifier.');
+    if (!includesAll(flags('renewal'), ['identifier', 'record', 'service'])) {
+      hints.push('Message 1: flag the email, case number, and benefits context.');
     }
-    if (!['redact', 'abstract', 'guidance'].includes(selectedActions.billing)) {
-      hints.push('Message 2: do not use the invoice detail as-is.');
+    if (selectedActions.kiosk === 'as-is') {
+      hints.push('Message 2: consider whether the document-scanning detail should be generalized before AI use.');
     }
-    if (!flags('billing').includes('account')) {
-      hints.push('Message 2: flag the invoice as an account or billing detail.');
+    if (!flags('kiosk').includes('service')) {
+      hints.push('Message 2: flag the public-service context.');
     }
-    if (selectedActions.agency === 'as-is') {
-      hints.push('Message 3: separate the vendor-switching/deadline context from general theme analysis.');
+    if (selectedActions.accommodation !== 'guidance') {
+      hints.push('Message 3: use an approved route for accommodation context and the Friday deadline.');
     }
-    if (!includesAll(flags('agency'), ['business', 'urgency'])) {
-      hints.push('Message 3: flag business-sensitive context and urgency/deadline.');
+    if (!includesAll(flags('accommodation'), ['service', 'urgency'])) {
+      hints.push('Message 3: flag sensitive service context and urgency/deadline.');
     }
-    if (selectedActions.budget === 'as-is') {
-      hints.push('Message 4: do not use the budget-workbook context as-is.');
+    if (selectedActions['public-records'] === 'as-is') {
+      hints.push('Message 4: do not use the public-records request ID as-is.');
     }
-    if (!flags('budget').includes('business')) {
-      hints.push('Message 4: flag the budget workbook as business-sensitive.');
+    if (!flags('public-records').includes('record')) {
+      hints.push('Message 4: flag the request ID as a case or record detail.');
     }
-    if (selectedActions['case-manager'] !== 'guidance') {
-      hints.push('Message 5: use an approved process first for the case-manager/privacy concern.');
+    if (selectedActions.shelter !== 'guidance') {
+      hints.push('Message 5: use an approved case-management route for housing and safety information.');
     }
-    if (!includesAll(flags('case-manager'), ['service', 'privacy'])) {
-      hints.push('Message 5: flag sensitive service context and privacy concern.');
+    if (!includesAll(flags('shelter'), ['identifier', 'record', 'service', 'privacy'])) {
+      hints.push('Message 5: flag case detail, sensitive service context, and privacy concern.');
     }
 
     return hints;
   }, [selectedActions, selectedFlags]);
   const criticalDataPassed = criticalDataHints.length === 0;
+  const showCriticalDataHints =
+    (completedActions > 0 || completedFlags > 0) && !criticalDataPassed;
 
   const ready =
     completedActions === messages.length &&
     completedFlags === messages.length &&
-    criticalDataPassed &&
     packetQuality.passed &&
     promptQuality.passed &&
-    effectiveRubricScore >= 4;
+    judgmentQuality.passed;
   const completionRequirements = [
     {
       label: 'Choose a handling action for every message',
@@ -364,11 +392,7 @@ export default function DataBoundaryLab() {
       met: completedFlags === messages.length,
     },
     {
-      label: 'Handle the visible identifiers, account details, sensitive service context, and business-sensitive material',
-      met: criticalDataPassed,
-    },
-    {
-      label: 'Write a sanitized packet',
+      label: 'Write a sanitized public-service packet',
       met: packetQuality.passed,
     },
     {
@@ -376,8 +400,8 @@ export default function DataBoundaryLab() {
       met: promptQuality.passed,
     },
     {
-      label: 'Meet at least four local self-checks, with one self-attested override allowed',
-      met: effectiveRubricScore >= 4,
+      label: 'Complete the Judgment Challenge',
+      met: judgmentQuality.passed,
     },
   ];
 
@@ -398,6 +422,9 @@ export default function DataBoundaryLab() {
         typeof draft.sanitizedPacket === 'string' ? draft.sanitizedPacket : '',
       );
       setSaferPrompt(typeof draft.saferPrompt === 'string' ? draft.saferPrompt : '');
+      setJudgmentResponse(
+        typeof draft.judgmentResponse === 'string' ? draft.judgmentResponse : '',
+      );
       setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
     }
     setDraftLoaded(true);
@@ -412,7 +439,8 @@ export default function DataBoundaryLab() {
       Object.keys(selectedActions).length > 0 ||
       Object.keys(selectedFlags).length > 0 ||
       Boolean(sanitizedPacket.trim()) ||
-      Boolean(saferPrompt.trim());
+      Boolean(saferPrompt.trim()) ||
+      Boolean(judgmentResponse.trim());
 
     if (!hasWork) {
       return;
@@ -423,6 +451,7 @@ export default function DataBoundaryLab() {
       selectedFlags,
       sanitizedPacket,
       saferPrompt,
+      judgmentResponse,
     });
     setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
   }, [
@@ -431,6 +460,7 @@ export default function DataBoundaryLab() {
     selectedFlags,
     sanitizedPacket,
     saferPrompt,
+    judgmentResponse,
   ]);
 
   function chooseAction(messageId, actionId) {
@@ -477,9 +507,9 @@ export default function DataBoundaryLab() {
       <div className="data-lab__scenario">
         <h3>Scenario</h3>
         <p>
-          A teammate wants to paste customer messages into an AI tool to
-          summarize themes and suggest product fixes. The task sounds ordinary.
-          The data is not.
+          A public office teammate wants to paste inbox messages into an AI
+          tool to summarize service themes and suggest process improvements.
+          The task sounds ordinary. The data is not.
         </p>
         <p>
           For each message, choose the handling action and the risk signals.
@@ -487,8 +517,9 @@ export default function DataBoundaryLab() {
           use.
         </p>
         <blockquote>
-          Summarize these customer messages by theme and suggest three product
-          fixes. Include examples and identify any urgent cases.
+          Summarize these public-service inbox messages by theme and suggest
+          three process improvements. Include examples and identify urgent
+          cases.
         </blockquote>
       </div>
 
@@ -558,12 +589,12 @@ export default function DataBoundaryLab() {
 
       <label className="data-lab__textarea">
         <span>
-          Create a sanitized packet that preserves useful themes but removes
-          unnecessary exposure.
+          Create a sanitized packet that preserves useful public-service themes
+          but removes unnecessary exposure.
         </span>
         <textarea
           onChange={(event) => setSanitizedPacket(event.target.value)}
-          placeholder="Example: User reports login failure after update..."
+          placeholder="Example: Resident reports benefits renewal link failure..."
           rows="7"
           value={sanitizedPacket}
         />
@@ -585,6 +616,19 @@ export default function DataBoundaryLab() {
         </small>
       </label>
 
+      <label className="data-lab__textarea data-lab__judgment">
+        <span>Judgment Challenge: defend the minimum viable data packet.</span>
+        <textarea
+          onChange={(event) => setJudgmentResponse(event.target.value)}
+          placeholder="I would include only abstracted service themes... I would route accommodation, housing, and case-specific details through approved office channels because..."
+          rows="5"
+          value={judgmentResponse}
+        />
+        <small className={judgmentQuality.passed ? 'is-passed' : ''}>
+          {textQualitySummary(judgmentQuality)}
+        </small>
+      </label>
+
       <div className="data-lab__self-check">
         <div className="data-lab__self-check-header">
           <h3>What your answer shows so far</h3>
@@ -597,11 +641,11 @@ export default function DataBoundaryLab() {
           These checks support reflection; they do not verify correctness,
           policy compliance, or role authorization.
         </p>
-        {!criticalDataPassed && (
+        {showCriticalDataHints && (
           <div className="data-lab__warning">
             <p>
-              These items still need attention before reveal. Extra risk flags
-              are fine; this list only names the minimum visible issues.
+              Consider these visible issues as you revise. Extra risk flags are
+              fine; this list only names likely minimum issues.
             </p>
             <ul>
               {criticalDataHints.map((hint) => (
@@ -670,8 +714,8 @@ export default function DataBoundaryLab() {
           <p>
             You matched {actionScore} of {messages.length} recommended actions
             and {flagScore} of {messages.length} risk-signal sets. The goal is
-            not perfect labels. The goal is to stop treating "customer feedback"
-            as one uniform data category.
+            not perfect labels. The goal is to stop treating "office inbox
+            messages" as one uniform data category.
           </p>
 
           <div className="data-lab__review-grid">

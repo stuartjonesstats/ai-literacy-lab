@@ -40,60 +40,70 @@ const cases = [
     initialBest: ['proceed', 'modify'],
     revisedBest: ['modify', 'pause'],
     expectedDimensions: ['data', 'people', 'policy'],
+    tradeoff:
+      'Ordinary drafting may be fine only if the source notes are narrowed before use.',
     debrief:
       'The task sounds low-risk, but the data changed. A routine drafting task becomes a data-boundary problem when unannounced staffing details appear.',
   },
   {
-    id: 'complaints',
-    title: 'Complaint Themes',
+    id: 'public-records',
+    title: 'Public Records Requests',
     initial:
-      'Use AI to summarize customer complaints and identify urgent follow-up themes.',
+      'Use AI to summarize incoming public records requests and route each one to the likely records owner.',
     complication:
-      'The complaints include account details, vulnerable customers, and possible safety or access concerns that need routing.',
+      'Some requests include legally required response deadlines, exemption questions, personal information, and language from requesters that the AI labels as low value.',
     initialBest: ['modify', 'pause'],
     revisedBest: ['pause', 'escalate'],
-    expectedDimensions: ['data', 'people', 'policy', 'consequence'],
+    expectedDimensions: ['data', 'policy', 'consequence', 'verification'],
+    tradeoff:
+      'Routing help may be useful, but missing a deadline or mishandling exempt records is not a normal summarization error.',
     debrief:
-      'Theme analysis may be useful, but urgent or sensitive complaints require separation from generic summarization.',
+      'Public records work has deadlines, disclosure rules, exemptions, and auditability needs. AI may assist intake only with clear records-owner review and policy controls.',
   },
   {
-    id: 'deprioritize',
-    title: 'Ticket Deprioritization',
+    id: 'benefits-queue',
+    title: 'Benefits Queue Prioritization',
     initial:
-      'Use AI to recommend which support tickets should be deprioritized during a backlog surge.',
+      'Use AI to prioritize which public benefits renewal files staff should process first during a backlog.',
     complication:
-      'A deprioritized ticket may delay help for users with urgent access needs, and the AI does not see account history or prior failed fixes.',
+      'The AI cannot see accommodation flags, pending appeal deadlines, eviction risk notes, or recent uploads from the document portal.',
     initialBest: ['pause', 'escalate'],
     revisedBest: ['escalate'],
-    expectedDimensions: ['consequence', 'people', 'verification'],
+    expectedDimensions: ['consequence', 'people', 'verification', 'policy'],
+    tradeoff:
+      'Backlog triage is real, but delay can become a benefits or housing harm before anyone can correct the ranking.',
     debrief:
-      'This is not just sorting work. It can affect who waits, who gets help, and whether harm happens before a human notices.',
+      'This is not just sorting work. It can affect who waits for benefits, whose documents are noticed, and whether harm happens before a human can verify the queue.',
   },
   {
-    id: 'denial',
-    title: 'Denial Language',
+    id: 'regulated-denial',
+    title: 'Regulated Denial Draft',
     initial:
-      'Use AI to draft denial language for requests that do not meet policy.',
+      'Use AI to draft plain-language denial notices for applications that staff mark as ineligible.',
     complication:
-      'Some requests involve exceptions, appeal rights, or people who may rely on the explanation to understand next steps.',
-    initialBest: ['modify', 'pause'],
+      'Some denials require appeal-rights language, citations to the governing rule, and review by a staff member with delegated authority.',
+    initialBest: ['modify', 'pause', 'escalate'],
     revisedBest: ['pause', 'escalate'],
     expectedDimensions: ['consequence', 'people', 'policy', 'verification'],
+    tradeoff:
+      'Plain language can improve access, but a notice that lacks rule authority or appeal information can mislead the person affected.',
     debrief:
-      'AI may help with plain language, but denial-related communication needs strong source checking and accountable review.',
+      'AI may help with readability after a human decision is made. It should not supply the authority, rationale, or appeal rights for a regulated denial.',
   },
   {
-    id: 'interviews',
-    title: 'Interview Questions',
+    id: 'grant-screening',
+    title: 'Grant Screening',
     initial:
-      'Use AI to generate interview questions from job descriptions.',
+      'Use AI to screen grant applications for completeness before reviewers score them.',
     complication:
-      'The job descriptions include informal criteria like culture fit, executive presence, and availability for short-notice travel.',
-    initialBest: ['modify', 'pause'],
+      'The prompt includes past award history, applicant organization size, and a suggestion to flag applications from unfamiliar vendors for extra scrutiny.',
+    initialBest: ['modify', 'pause', 'escalate'],
     revisedBest: ['pause', 'escalate'],
-    expectedDimensions: ['people', 'policy', 'consequence'],
+    expectedDimensions: ['consequence', 'people', 'policy', 'verification'],
+    tradeoff:
+      'Completeness checks may be lower risk than scoring, but procurement and grant criteria must be consistent, published, and reviewable.',
     debrief:
-      'Standardizing questions can help, but vague criteria can encode unfair proxies. Review should focus on job relevance and consistent evaluation.',
+      'Grant and procurement workflows need consistent criteria, conflict checks, and records that explain why an application moved forward or did not.',
   },
   {
     id: 'titles',
@@ -105,17 +115,57 @@ const cases = [
     initialBest: ['proceed'],
     revisedBest: ['proceed'],
     expectedDimensions: [],
+    tradeoff:
+      'This can proceed because the prompt and output do not affect access, eligibility, confidential data, or official decisions.',
     debrief:
       'This is a useful proportionality check. Some uses are genuinely low risk when data, stakes, and downstream effects are limited.',
   },
 ];
+
+const judgmentChallenge = {
+  title: 'Judgment Challenge',
+  prompt:
+    'A records office wants AI to both route requests and draft first responses. It may save hours, but the data contains exemptions, deadlines, and uneven request detail. Which next step best preserves the benefit while controlling risk?',
+  options: [
+    {
+      id: 'proceed',
+      label: 'Proceed because routing is administrative',
+      feedback:
+        'This underweights deadline, disclosure, and exemption consequences.',
+    },
+    {
+      id: 'modify',
+      label: 'Modify: limit AI to intake tags with human records-owner review',
+      feedback:
+        'This keeps the benefit while narrowing the task and adding verification before any official response.',
+    },
+    {
+      id: 'pause',
+      label: 'Pause all AI use until every records policy question is solved',
+      feedback:
+        'Pausing may be justified in some offices, but the stronger proportional answer is to narrow the use and define review conditions.',
+    },
+    {
+      id: 'escalate',
+      label: 'Escalate every request before using any AI support',
+      feedback:
+        'Escalation is important for exceptions, but escalating every routine intake item may be disproportionate if the use is narrowed.',
+    },
+  ],
+  bestOptions: ['modify'],
+};
 
 const rubricChecks = [
   {
     id: 'revises-after-context',
     label: 'Calibrates risk after new context appears',
     test: ({ revisedChoices }) =>
-      ['complaints', 'deprioritize', 'denial', 'interviews'].every((id) =>
+      [
+        'public-records',
+        'benefits-queue',
+        'regulated-denial',
+        'grant-screening',
+      ].every((id) =>
         ['pause', 'escalate'].includes(revisedChoices[id]),
       ) && ['modify', 'pause'].includes(revisedChoices.agenda),
     why: 'Risk classification should respond to context, including recognizing when initial caution remains warranted.',
@@ -124,10 +174,17 @@ const rubricChecks = [
     id: 'escalates-people-impact',
     label: 'Escalates or pauses people-impacting uses',
     test: ({ revisedChoices }) =>
-      ['deprioritize', 'denial', 'interviews'].every((id) =>
+      ['benefits-queue', 'regulated-denial', 'grant-screening'].every((id) =>
         ['pause', 'escalate'].includes(revisedChoices[id]),
       ),
     why: 'Uses that affect access, denial, selection, or delay need stronger review.',
+  },
+  {
+    id: 'keeps-use-narrow',
+    label: 'Chooses a narrow path when modify beats guessing',
+    test: ({ challengeChoice }) =>
+      judgmentChallenge.bestOptions.includes(challengeChoice),
+    why: 'Borderline cases often need a narrower allowed use, not a blanket yes or no.',
   },
   {
     id: 'keeps-proportionality',
@@ -168,6 +225,7 @@ export default function RiskEscalationLab() {
   const [showComplications, setShowComplications] = useState(false);
   const [revisedChoices, setRevisedChoices] = useState({});
   const [selectedDimensions, setSelectedDimensions] = useState({});
+  const [challengeChoice, setChallengeChoice] = useState('');
   const [note, setNote] = useState('');
   const [selfMarked, setSelfMarked] = useState({});
   const [showDebrief, setShowDebrief] = useState(false);
@@ -224,13 +282,23 @@ export default function RiskEscalationLab() {
           initialChoices,
           revisedChoices,
           selectedDimensions,
+          challengeChoice,
           note,
         }),
       })),
-    [initialChoices, revisedChoices, selectedDimensions, note],
+    [
+      initialChoices,
+      revisedChoices,
+      selectedDimensions,
+      challengeChoice,
+      note,
+    ],
   );
 
   const rubricScore = rubricResults.filter((check) => check.passed).length;
+  const challengePassed = judgmentChallenge.bestOptions.includes(
+    challengeChoice,
+  );
   const selfMarkedScore = rubricResults.filter((check) => selfMarked[check.id])
     .length;
   const effectiveRubricScore =
@@ -265,30 +333,20 @@ export default function RiskEscalationLab() {
   );
   const ready =
     revisedComplete &&
-    revisedScore >= 4 &&
-    dimensionScore >= 4 &&
-    noteQuality.passed &&
-    effectiveRubricScore >= 3;
+    challengePassed &&
+    noteQuality.passed;
   const completionRequirements = [
     {
       label: 'Classify all cases after the new context',
       met: revisedComplete,
     },
     {
-      label: 'Match the stronger revised classification on at least four cases',
-      met: revisedScore >= 4,
-    },
-    {
-      label: 'Match risk dimensions on at least four cases',
-      met: dimensionScore >= 4,
+      label: 'Complete the judgment challenge with a proportional control',
+      met: challengePassed,
     },
     {
       label: 'Write an escalation note with a condition to proceed',
       met: noteQuality.passed,
-    },
-    {
-      label: 'Meet at least three local self-checks, with one self-attested override allowed',
-      met: effectiveRubricScore >= 3,
     },
   ];
 
@@ -311,6 +369,9 @@ export default function RiskEscalationLab() {
           ? draft.selectedDimensions
           : {},
       );
+      setChallengeChoice(
+        typeof draft.challengeChoice === 'string' ? draft.challengeChoice : '',
+      );
       setNote(typeof draft.note === 'string' ? draft.note : '');
       setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
     }
@@ -327,6 +388,7 @@ export default function RiskEscalationLab() {
       showComplications ||
       Object.keys(revisedChoices).length > 0 ||
       Object.keys(selectedDimensions).length > 0 ||
+      Boolean(challengeChoice) ||
       Boolean(note.trim());
 
     if (!hasWork) {
@@ -338,6 +400,7 @@ export default function RiskEscalationLab() {
       showComplications,
       revisedChoices,
       selectedDimensions,
+      challengeChoice,
       note,
     });
     setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
@@ -347,6 +410,7 @@ export default function RiskEscalationLab() {
     showComplications,
     revisedChoices,
     selectedDimensions,
+    challengeChoice,
     note,
   ]);
 
@@ -402,6 +466,11 @@ export default function RiskEscalationLab() {
           job is not to approve or ban AI. Your job is to decide what each use
           would require before it proceeds.
         </p>
+        <p>
+          More than one first-pass answer can be defensible. Use the revised
+          classification to name the control: proceed, narrow the use, pause for
+          expert review, or escalate before use.
+        </p>
       </div>
 
       <div className="risk-lab__cases">
@@ -434,6 +503,11 @@ export default function RiskEscalationLab() {
                 <div className="risk-lab__complication">
                   <h4>New context</h4>
                   <p>{item.complication}</p>
+                </div>
+
+                <div className="risk-lab__tradeoff">
+                  <h4>Tradeoff to resolve</h4>
+                  <p>{item.tradeoff}</p>
                 </div>
 
                 <fieldset>
@@ -516,6 +590,38 @@ export default function RiskEscalationLab() {
               {textQualitySummary(noteQuality)}
             </small>
           </label>
+
+          <div className="risk-lab__challenge">
+            <div className="risk-lab__challenge-head">
+              <GitBranch size={20} aria-hidden="true" />
+              <div>
+                <h3>{judgmentChallenge.title}</h3>
+                <p>{judgmentChallenge.prompt}</p>
+              </div>
+            </div>
+            <div className="risk-lab__challenge-grid">
+              {judgmentChallenge.options.map((option) => (
+                <button
+                  aria-pressed={challengeChoice === option.id}
+                  className={challengeChoice === option.id ? 'is-selected' : ''}
+                  key={option.id}
+                  onClick={() => setChallengeChoice(option.id)}
+                  type="button"
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+            {challengeChoice && (
+              <p className="risk-lab__challenge-feedback">
+                {
+                  judgmentChallenge.options.find(
+                    (option) => option.id === challengeChoice,
+                  )?.feedback
+                }
+              </p>
+            )}
+          </div>
 
           <div className="risk-lab__self-check">
             <div className="risk-lab__self-check-header">

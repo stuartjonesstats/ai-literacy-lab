@@ -13,32 +13,32 @@ import './capstone-simulation-lab.css';
 const assistTasks = [
   {
     id: 'themes',
-    label: 'Summarize recurring themes',
+    label: 'Summarize recurring service-access themes',
     kind: 'assist',
   },
   {
     id: 'questions',
-    label: 'List questions that need human follow-up',
+    label: 'List questions for benefits-staff follow-up',
     kind: 'assist',
   },
   {
     id: 'draft',
-    label: 'Draft intervention options for review',
+    label: 'Draft service-response options for review',
     kind: 'assist',
   },
   {
     id: 'urgent',
-    label: 'Flag possible urgent cases for human triage',
+    label: 'Flag possible urgent access needs for human triage',
     kind: 'assist-with-review',
   },
   {
     id: 'deprioritize',
-    label: 'Automatically deprioritize low-detail messages',
+    label: 'Automatically deprioritize short or incomplete requests',
     kind: 'do-not-delegate',
   },
   {
     id: 'notify',
-    label: 'Send customer follow-up messages automatically',
+    label: 'Send benefit or eligibility notices automatically',
     kind: 'do-not-delegate',
   },
 ];
@@ -46,27 +46,27 @@ const assistTasks = [
 const claimChecks = [
   {
     id: 'theme',
-    claim: 'Billing confusion and account access delays appear in the packet.',
+    claim: 'Benefit status confusion and appointment-access delays appear in the packet.',
     answer: 'supported',
     why: 'The sample records include both themes, so this is a reasonable bounded claim.',
   },
   {
     id: 'percent',
-    claim: 'Billing confusion caused 42% of complaints this month.',
+    claim: 'Benefit status confusion caused 42% of service requests this month.',
     answer: 'unsupported',
     why: 'The packet is a small sample and does not provide a validated monthly percentage.',
   },
   {
     id: 'ranking',
-    claim: 'The top three dissatisfaction causes are now known.',
+    claim: 'The top three causes of delayed access are now known.',
     answer: 'overstated',
     why: 'The sample can suggest themes, but it is not enough to rank causes for the whole backlog.',
   },
   {
     id: 'short',
-    claim: 'Short or informal messages are probably lower priority.',
+    claim: 'Short or informal requests are probably lower priority.',
     answer: 'unsupported',
-    why: 'Message length and tone are weak proxies. A short message can still involve urgent harm.',
+    why: 'Length and tone are weak proxies. A short request can still involve urgent harm or a legal deadline.',
   },
 ];
 
@@ -84,22 +84,22 @@ const dataControls = [
   },
   {
     id: 'abstract-account',
-    label: 'Abstract account details into needed categories',
+    label: 'Abstract case details into needed categories',
     good: true,
   },
   {
     id: 'approved-space',
-    label: 'Use only an approved workspace or tool',
+    label: 'Use only an approved public-office workspace or tool',
     good: true,
   },
   {
     id: 'separate-urgent',
-    label: 'Separate urgent cases from general theme analysis',
+    label: 'Separate urgent access needs from general theme analysis',
     good: true,
   },
   {
     id: 'paste-all',
-    label: 'Paste the raw backlog so context is not lost',
+    label: 'Paste the raw case backlog so context is not lost',
     good: false,
   },
 ];
@@ -107,7 +107,7 @@ const dataControls = [
 const harmChecks = [
   {
     id: 'short-message',
-    label: 'Short messages may hide urgent needs',
+    label: 'Short requests may hide urgent needs or deadlines',
   },
   {
     id: 'language',
@@ -115,18 +115,18 @@ const harmChecks = [
   },
   {
     id: 'accessibility',
-    label: 'Customers with access barriers may provide less detail',
+    label: 'Residents with access barriers may provide less detail',
   },
   {
     id: 'history',
-    label: 'The model may miss account history or previous failed fixes',
+    label: 'The model may miss case history, notices, or prior appeals',
   },
 ];
 
 const reviewControls = [
   {
     id: 'owner',
-    label: 'Name a human owner for the final decision',
+    label: 'Name a human owner for any final service decision',
   },
   {
     id: 'override',
@@ -138,18 +138,18 @@ const reviewControls = [
   },
   {
     id: 'sources',
-    label: 'Keep evidence links or record IDs for review',
+    label: 'Keep evidence links or case record IDs for review',
   },
   {
     id: 'trigger',
-    label: 'Define escalation triggers before launch',
+    label: 'Define escalation triggers before use',
   },
 ];
 
 const finalActions = [
   {
     id: 'proceed',
-    label: 'Proceed as proposed',
+    label: 'Launch automated routing now',
   },
   {
     id: 'pilot',
@@ -161,7 +161,7 @@ const finalActions = [
   },
   {
     id: 'escalate',
-    label: 'Escalate for formal review',
+    label: 'Escalate for formal public-office review',
   },
 ];
 
@@ -169,44 +169,50 @@ const decisionFields = [
   {
     id: 'recommendation',
     label: 'Recommendation',
-    prompt: 'What should the organization do next?',
-    placeholder: 'Pilot with safeguards, pause until controls exist, or escalate...',
+    prompt: 'What should the office do next?',
+    placeholder: 'Pilot with safeguards, pause until controls exist, or escalate for public-office review...',
   },
   {
     id: 'allowedUse',
     label: 'Allowed AI role',
     prompt: 'What may AI help with, and what must it not decide?',
-    placeholder: 'AI may summarize themes and draft options; it must not deprioritize customers...',
+    placeholder: 'AI may summarize themes and draft response options; it must not rank residents or decide access...',
   },
   {
     id: 'dataBoundary',
     label: 'Data boundary',
     prompt: 'What data must be removed, minimized, or kept in an approved environment?',
-    placeholder: 'Remove identifiers, abstract account details, and use an approved workspace...',
+    placeholder: 'Remove identifiers, abstract case details, and use an approved workspace for sensitive records...',
   },
   {
     id: 'verification',
     label: 'Verification plan',
     prompt: 'What claims or outputs must be checked against source records?',
-    placeholder: 'Verify percentages, urgency flags, account history, and intervention claims...',
+    placeholder: 'Verify percentages, urgency flags, case history, notices, and service-response claims...',
   },
   {
     id: 'review',
     label: 'Human review owner',
     prompt: 'Who can inspect, override, stop, or approve the workflow?',
-    placeholder: 'Support operations owner reviews flagged cases and can override AI labels...',
+    placeholder: 'A benefits supervisor reviews flagged cases, approves actions, and can override AI labels...',
   },
   {
     id: 'harm',
     label: 'Fairness or harm concern',
     prompt: 'Who could be burdened by error, missing context, or proxy signals?',
-    placeholder: 'Short messages, language barriers, accessibility issues, and prior failed fixes...',
+    placeholder: 'People with language, disability, internet, documentation, or housing barriers...',
   },
   {
     id: 'escalation',
     label: 'Escalation trigger',
     prompt: 'What condition requires formal review before proceeding?',
-    placeholder: 'Escalate if priority affects access, urgent harm, vulnerable customers, or policy uncertainty...',
+    placeholder: 'Escalate if routing affects benefits access, deadlines, appeals, urgent needs, or policy uncertainty...',
+  },
+  {
+    id: 'tradeoff',
+    label: 'Final tradeoff judgment',
+    prompt: 'What tradeoff are you accepting among speed, access, privacy, fairness, accountability, and escalation?',
+    placeholder: 'Name the tradeoff: for example, slower triage may protect privacy and fairness until review controls exist...',
   },
 ];
 
@@ -219,7 +225,7 @@ const rubricChecks = [
       selectedTasks.includes('questions') &&
       !selectedTasks.includes('deprioritize') &&
       !selectedTasks.includes('notify'),
-    why: 'The memo should preserve AI as assistance, not as the decision maker.',
+    why: 'The memo should preserve AI as assistance, not as the public-service decision maker.',
   },
   {
     id: 'checks-evidence',
@@ -241,7 +247,7 @@ const rubricChecks = [
     id: 'names-harm',
     label: 'Names representational or access harms',
     test: ({ selectedHarmChecks }) => selectedHarmChecks.length >= 3,
-    why: 'Priority systems can disadvantage people through proxies such as detail, tone, or context gaps.',
+    why: 'Priority systems can disadvantage people through proxies such as detail, tone, access barriers, or context gaps.',
   },
   {
     id: 'review-loop',
@@ -254,15 +260,16 @@ const rubricChecks = [
   },
   {
     id: 'memo',
-    label: 'Writes a defensible recommendation',
+    label: 'Writes a defensible final judgment',
     test: ({ finalAction, memoText }) =>
       ['pilot', 'pause', 'escalate'].includes(finalAction) &&
       memoText.trim().length >= 300 &&
       includesAny(memoText, ['verify', 'check', 'audit', 'evidence']) &&
       includesAny(memoText, ['redact', 'remove', 'abstract', 'sensitive']) &&
       includesAny(memoText, ['human', 'reviewer', 'owner', 'approve']) &&
-      includesAny(memoText, ['escalate', 'pause', 'trigger', 'formal review']),
-    why: 'A strong memo states the decision, conditions, verification, review, and escalation triggers.',
+      includesAny(memoText, ['escalate', 'pause', 'trigger', 'formal review']) &&
+      includesAny(memoText, ['speed', 'access', 'privacy', 'fairness', 'accountability', 'tradeoff']),
+    why: 'A strong memo states the decision, conditions, verification, review, escalation triggers, and accepted tradeoff.',
   },
 ];
 
@@ -328,28 +335,15 @@ export default function CapstoneSimulationLab() {
   );
 
   const rubricScore = rubricResults.filter((check) => check.passed).length;
-  const boundedUsePassed = rubricResults.find((check) => check.id === 'bounds-use')?.passed;
-  const evidencePassed = rubricResults.find((check) => check.id === 'checks-evidence')?.passed;
-  const dataPassed = rubricResults.find((check) => check.id === 'protects-data')?.passed;
-  const reviewPassed = rubricResults.find((check) => check.id === 'review-loop')?.passed;
+  const defensibleFinalAction = ['pilot', 'pause', 'escalate'].includes(finalAction);
   const selfMarkedScore = rubricResults.filter((check) => selfMarked[check.id])
     .length;
-  const effectiveRubricScore =
-    rubricScore +
-    Math.min(
-      rubricResults.filter((check) => !check.passed && selfMarked[check.id])
-        .length,
-      2,
-    );
-  const criticalChecksPassed =
-    [boundedUsePassed, evidencePassed, dataPassed, reviewPassed].filter(Boolean)
-      .length >= 3;
   const memoQuality = useMemo(
     () =>
       analyzeTextQuality(memoText, {
         minChars: 320,
         minWords: 52,
-        requiredAny: ['recommendation', 'verify', 'human', 'data', 'escalate'],
+        requiredAny: ['recommendation', 'verify', 'human', 'data', 'escalate', 'access'],
         requiredGroups: [
           {
             terms: ['pilot', 'pause', 'escalate', 'recommendation', 'proceed'],
@@ -371,6 +365,10 @@ export default function CapstoneSimulationLab() {
             terms: ['escalate', 'trigger', 'pause', 'formal review'],
             message: 'Name the escalation trigger.',
           },
+          {
+            terms: ['speed', 'access', 'privacy', 'fairness', 'accountability', 'tradeoff'],
+            message: 'Name the tradeoff your final action accepts.',
+          },
         ],
       }),
     [memoText],
@@ -384,14 +382,17 @@ export default function CapstoneSimulationLab() {
     Boolean(finalAction);
   const ready =
     interactionComplete &&
+    defensibleFinalAction &&
     completedMemoFields === decisionFields.length &&
-    criticalChecksPassed &&
-    memoQuality.passed &&
-    effectiveRubricScore >= 5;
+    memoQuality.passed;
   const completionRequirements = [
     {
       label: 'Complete all six interaction sections',
       met: interactionComplete,
+    },
+    {
+      label: 'Choose a conditional, paused, or escalated final action',
+      met: defensibleFinalAction,
     },
     {
       label: 'Complete all decision memo fields',
@@ -400,14 +401,6 @@ export default function CapstoneSimulationLab() {
     {
       label: 'Write a substantive decision memo',
       met: memoQuality.passed,
-    },
-    {
-      label: 'Pass at least three of the capability, evidence, data, and review checks',
-      met: criticalChecksPassed,
-    },
-    {
-      label: 'Meet at least five capstone checks, with up to two self-attested overrides allowed',
-      met: effectiveRubricScore >= 5,
     },
   ];
 
@@ -495,7 +488,7 @@ export default function CapstoneSimulationLab() {
       <div className="capstone-lab__header">
         <div>
           <p className="capstone-lab__eyebrow">Capstone Simulation</p>
-          <h2 id="capstone-lab-title">The customer feedback decision</h2>
+          <h2 id="capstone-lab-title">The public benefits backlog decision</h2>
         </div>
         <div className="capstone-lab__progress" aria-live="polite">
           {rubricScore}/{rubricChecks.length}
@@ -510,28 +503,29 @@ export default function CapstoneSimulationLab() {
       <div className="capstone-lab__scenario">
         <h3>Scenario packet</h3>
         <p>
-          A support director wants to use AI to review customer feedback,
-          identify dissatisfaction themes, draft interventions, and flag
-          customers who may need urgent follow-up. The team is overloaded, and
-          a dashboard is due soon.
+          A public benefits office wants to use AI to review a growing service
+          backlog, identify recurring access barriers, draft response options,
+          and flag residents who may need urgent human follow-up. Staff are
+          overloaded, appointment slots are limited, and a supervisor wants a
+          triage plan by the end of the week.
         </p>
         <div className="capstone-lab__packet">
           <article>
             <h4>Evidence available</h4>
             <ul>
-              <li>Small synthetic sample of recent customer messages.</li>
-              <li>Several messages mention billing confusion and access delays.</li>
-              <li>Some records contain names, account IDs, and sensitive context.</li>
-              <li>Some urgent messages are short, informal, or missing details.</li>
+              <li>Small synthetic sample of recent service requests.</li>
+              <li>Several requests mention benefit status confusion and appointment delays.</li>
+              <li>Some records contain names, case IDs, household details, and sensitive context.</li>
+              <li>Some urgent requests are short, informal, translated, or missing details.</li>
             </ul>
           </article>
           <article>
             <h4>Proposed AI output</h4>
             <p>
-              "Billing confusion is the top issue at 42%. Low-detail messages
-              should be deprioritized. Recommended intervention: automatically
-              send standard billing instructions and route only detailed
-              complaints to a human reviewer."
+              "Benefit status confusion is the top issue at 42%. Low-detail
+              requests should be deprioritized. Recommended intervention:
+              automatically send standard eligibility instructions and route
+              only complete, detailed requests to a human reviewer."
             </p>
           </article>
         </div>
@@ -598,7 +592,8 @@ export default function CapstoneSimulationLab() {
       <fieldset className="capstone-lab__block">
         <legend>3. Set data boundaries</legend>
         <p>
-          Choose controls before any prompt or workflow uses customer feedback.
+          Choose controls before any prompt or workflow uses public service
+          records.
         </p>
         <div className="capstone-lab__choice-grid">
           {dataControls.map((control) => (
@@ -625,7 +620,7 @@ export default function CapstoneSimulationLab() {
         <legend>4. Surface fairness and harm concerns</legend>
         <p>
           Select the concerns that should be addressed before using AI to flag
-          priority or urgency.
+          priority, access, or urgency.
         </p>
         <div className="capstone-lab__choice-grid">
           {harmChecks.map((check) => (
@@ -677,8 +672,10 @@ export default function CapstoneSimulationLab() {
       <fieldset className="capstone-lab__block">
         <legend>6. Make the recommendation</legend>
         <p>
-          Choose your overall recommendation. A defensible answer can be
-          conditional; the point is to name what must be true before use.
+          Choose your final action. A defensible answer should force the
+          tradeoff into the open: speed and service access matter, but so do
+          privacy, fairness, accountability, and escalation when rights or
+          urgent needs may be affected.
         </p>
         <div className="capstone-lab__option-row">
           {finalActions.map((action) => (
@@ -699,8 +696,10 @@ export default function CapstoneSimulationLab() {
         <div>
           <h3>7. Write the structured decision memo</h3>
           <p>
-            Complete each field as if this will be read by a manager deciding
-            whether the AI-assisted workflow can proceed.
+            Complete each field as if this will be read by a public-office
+            manager deciding whether the AI-assisted workflow can proceed.
+            Completion depends on a defensible judgment, not guessing every
+            hidden answer.
           </p>
         </div>
         {decisionFields.map((field) => (
@@ -728,7 +727,8 @@ export default function CapstoneSimulationLab() {
         <p>
           This section shows what the page can detect in your answer so far.
           These checks support reflection; they do not verify correctness,
-          policy compliance, or role authorization.
+          policy compliance, legal compliance, or role authorization. Use them
+          to improve your memo, not to chase a perfect score.
         </p>
         <p className="capstone-lab__self-mark-count" aria-live="polite">
           {selfMarkedScore}/{rubricChecks.length} checked by you
@@ -789,11 +789,12 @@ export default function CapstoneSimulationLab() {
         <div className="capstone-lab__debrief">
           <h3>Capstone review</h3>
           <p>
-            The strongest recommendation is usually not "use AI" or "do not use
-            AI." It is a conditional workflow: use AI for bounded analysis and
-            drafting, keep sensitive data minimized, verify claims against
-            records, require human ownership, and escalate when the use affects
-            priority, access, or vulnerable customers.
+            The strongest recommendation is usually not a simple "use AI" or
+            "do not use AI." It is a conditional public-service workflow: use AI
+            for bounded analysis and drafting, keep sensitive data minimized,
+            verify claims against records, require human ownership, and
+            escalate when the use affects access, deadlines, appeals, urgent
+            needs, or vulnerable residents.
           </p>
           <div className="capstone-lab__review-grid">
             <article>
@@ -802,21 +803,25 @@ export default function CapstoneSimulationLab() {
               <p>
                 You classified {claimScore}/{claimChecks.length} claims in line
                 with the packet. Unsupported percentages and priority rules
-                should not survive into the final memo as facts.
+                should not survive into the final memo as facts, especially
+                when they could shape public benefit access.
               </p>
             </article>
             <article>
               <FileText size={20} aria-hidden="true" />
               <h4>Decision quality</h4>
               <p>
-                A defensible memo states residual risk. It also tells the next
-                person what would make the workflow acceptable, what needs
-                review, and what would trigger escalation.
+                A defensible memo states the tradeoff it accepts. It also tells
+                the next person what would make the workflow acceptable, what
+                needs review, who can override it, and what would trigger
+                escalation.
               </p>
             </article>
           </div>
           <p className="capstone-lab__principle">
-            AI literacy is applied judgment under uncertainty.
+            AI literacy is applied judgment under uncertainty, especially when
+            speed, access, privacy, fairness, and accountability pull in
+            different directions.
           </p>
           <p className="capstone-lab__privacy">
             Your selections and memo stayed in this browser. They were not

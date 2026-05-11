@@ -36,21 +36,28 @@ const meaningfulReviewCriteria = [
   'Uncertainty and missing context are documented before the output moves on.',
 ];
 
+const consequentialCaseIds = [
+  'benefits-renewal',
+  'policy-denial',
+  'performance-note',
+  'public-guidance',
+];
+
 const cases = [
   {
-    id: 'customer-escalation',
-    title: 'Customer Escalation',
+    id: 'benefits-renewal',
+    title: 'Benefits Renewal Notice',
     aiRecommendation:
-      'Mark this escalation as low priority. The customer appears frustrated, but no direct financial impact is mentioned. Suggested response: acknowledge the concern and provide standard troubleshooting steps.',
+      'Send the denial notice and close the renewal as incomplete. The file lacks current income verification, so the office can use the standard nonresponse language.',
     visible:
-      'Customer says this is the third outage this month and their board meeting is tomorrow.',
+      'The applicant uploaded pay stubs, but one required page is blank. Benefits expire in five days.',
     evidence:
-      'Account tier: strategic renewal in 30 days. Prior ticket: same issue affected invoice processing. Internal note: workaround exists but requires product operations approval.',
-    confidenceCue: 'AI label: routine issue, high confidence.',
-    bestDecisions: ['escalate', 'more-info'],
+      'Case record: two pay stubs arrived before the deadline. System note: upload portal failed for some users that day. Procedure excerpt: staff must request the missing page before termination when the record shows a timely but incomplete upload. Reviewer role: may draft language, not approve denial.',
+    confidenceCue: 'AI label: policy match, high confidence.',
+    bestDecisions: ['revise', 'escalate', 'more-info'],
     bestAuthority: ['no', 'unclear'],
     risk:
-      'The visible summary understates consequence. Renewal timing, repeated outages, and approval-dependent workaround make a standard response weak review.',
+      'The visible summary invites a pattern match, but the record changes the decision. Meaningful review requires inspecting the case record, procedure, and authority limit before any notice goes out.',
   },
   {
     id: 'policy-denial',
@@ -75,7 +82,7 @@ const cases = [
     visible:
       'The meeting covered office supply ordering, a documentation cleanup, and next week agenda items.',
     evidence:
-      'Source notes match the AI summary. No sensitive personal, customer, financial, or policy-impacting details are included.',
+      'Source notes match the AI summary. No sensitive personal, resident, financial, or policy-impacting details are included.',
     confidenceCue: 'AI label: low-risk draft.',
     bestDecisions: ['approve', 'revise'],
     bestAuthority: ['yes'],
@@ -90,7 +97,7 @@ const cases = [
     visible:
       'The employee missed two optional meetings and submitted a late status update.',
     evidence:
-      'The employee was covering urgent customer work during one meeting. The late update was caused by a reporting system outage. No manager has reviewed the context.',
+      'The employee was covering urgent resident intake during one meeting. The late update was caused by a reporting system outage. No manager has reviewed the context.',
     confidenceCue: 'AI label: pattern detected.',
     bestDecisions: ['reject', 'escalate', 'more-info'],
     bestAuthority: ['no', 'unclear'],
@@ -98,28 +105,62 @@ const cases = [
       'The AI turns thin context into a personnel judgment. A reviewer should not approve that without role authority and fuller evidence.',
   },
   {
-    id: 'public-faq',
-    title: 'Public FAQ Draft',
+    id: 'public-guidance',
+    title: 'Public Guidance Update',
     aiRecommendation:
-      'Publish the FAQ. It explains the new feature in plain language and includes setup steps.',
+      'Publish the updated public guidance. It explains eligibility changes in plain language and includes a clear effective date.',
     visible:
-      'The FAQ is for a feature launching next week.',
+      'The page is for a regulated office and will be used by applicants, advocates, and field staff.',
     evidence:
-      'Product notes show two setup limitations and one support caveat that the AI omitted. The feature name and launch date are approved for public use.',
-    confidenceCue: 'AI label: polished communication draft.',
-    bestDecisions: ['revise', 'more-info'],
-    bestAuthority: ['yes', 'unclear'],
+      'Source bulletin says the old threshold remains in effect until the director signs the implementation memo. Legal review is pending. Accessibility checklist flags that the draft omits a phone alternative for people who cannot use the web form.',
+    confidenceCue: 'AI label: ready-to-publish draft.',
+    bestDecisions: ['revise', 'escalate', 'more-info'],
+    bestAuthority: ['no', 'unclear'],
     risk:
-      'The communication may be publishable after revision, but review must catch missing caveats before users rely on it.',
+      'The draft may be useful, but public guidance from a regulated office needs source authority, accessibility review, and final approval before publication.',
   },
 ];
 
+const judgmentChallenge = {
+  title: 'Judgment Challenge',
+  prompt:
+    'A manager asks you to clear 30 AI-drafted notices before 5 p.m. The evidence panel fails for several files, the policy owner is unavailable, and the manager says delays will hurt team metrics. What makes the review meaningful?',
+  options: [
+    {
+      id: 'approve-pressure',
+      label: 'Approve the batch and note that AI was confident',
+      feedback:
+        'This treats review as a throughput step. Missing records and unclear authority make the approval weak.',
+    },
+    {
+      id: 'spot-check',
+      label: 'Spot-check a few files, then approve the rest',
+      feedback:
+        'Spot-checking may help quality control, but it does not solve missing evidence for notices that affect individual rights or benefits.',
+    },
+    {
+      id: 'pause-escalate',
+      label: 'Pause affected notices and escalate the evidence and authority gaps',
+      feedback:
+        'This recognizes that pressure does not make review meaningful. The human needs records, authority, and a real path to delay or change the output.',
+    },
+  ],
+  bestOptions: ['pause-escalate'],
+};
+
 const rubricChecks = [
+  {
+    id: 'opens-evidence-broadly',
+    label: 'Inspects source evidence across the case set',
+    test: ({ openedEvidence }) =>
+      cases.filter((item) => openedEvidence[item.id]).length >= 4,
+    why: 'The lab is about reviewing records, not recognizing the title of a risky case.',
+  },
   {
     id: 'opens-evidence',
     label: 'Checks source evidence before consequential approval',
     test: ({ openedEvidence, choices }) =>
-      ['customer-escalation', 'policy-denial', 'performance-note'].every(
+      consequentialCaseIds.every(
         (id) => openedEvidence[id] || choices[id] !== 'approve',
       ),
     why: 'Meaningful review requires evidence when the consequence is nontrivial.',
@@ -128,7 +169,7 @@ const rubricChecks = [
     id: 'does-not-rubber-stamp',
     label: 'Does not rubber-stamp the risky recommendations',
     test: ({ choices }) =>
-      ['customer-escalation', 'policy-denial', 'performance-note'].every(
+      consequentialCaseIds.every(
         (id) => choices[id] && choices[id] !== 'approve',
       ),
     why: 'A plausible AI recommendation is not enough when evidence is incomplete or stakes are high.',
@@ -137,10 +178,17 @@ const rubricChecks = [
     id: 'authority',
     label: 'Notices authority limits',
     test: ({ authority }) =>
-      ['customer-escalation', 'policy-denial', 'performance-note'].every((id) =>
+      consequentialCaseIds.every((id) =>
         ['no', 'unclear'].includes(authority[id]),
       ),
     why: 'A reviewer cannot own a decision they are not qualified or authorized to make.',
+  },
+  {
+    id: 'pressure-challenge',
+    label: 'Recognizes when pressure makes review non-meaningful',
+    test: ({ challengeChoice }) =>
+      judgmentChallenge.bestOptions.includes(challengeChoice),
+    why: 'Time pressure and manager pressure do not replace evidence, authority, or escalation rights.',
   },
   {
     id: 'routine-proportionality',
@@ -187,6 +235,7 @@ export default function ReviewLoopLab() {
   const [choices, setChoices] = useState({});
   const [authority, setAuthority] = useState({});
   const [openedEvidence, setOpenedEvidence] = useState({});
+  const [challengeChoice, setChallengeChoice] = useState('');
   const [note, setNote] = useState('');
   const [selfMarked, setSelfMarked] = useState({});
   const [showDebrief, setShowDebrief] = useState(false);
@@ -217,12 +266,24 @@ export default function ReviewLoopLab() {
     () =>
       rubricChecks.map((check) => ({
         ...check,
-        passed: check.test({ openedEvidence, choices, authority, note }),
+        passed: check.test({
+          openedEvidence,
+          choices,
+          authority,
+          challengeChoice,
+          note,
+        }),
       })),
-    [openedEvidence, choices, authority, note],
+    [openedEvidence, choices, authority, challengeChoice, note],
   );
 
   const rubricScore = rubricResults.filter((check) => check.passed).length;
+  const inspectedEvidenceCount = cases.filter(
+    (item) => openedEvidence[item.id],
+  ).length;
+  const challengePassed = judgmentChallenge.bestOptions.includes(
+    challengeChoice,
+  );
   const doesNotRubberStamp = rubricResults.find(
     (check) => check.id === 'does-not-rubber-stamp',
   )?.passed;
@@ -263,30 +324,25 @@ export default function ReviewLoopLab() {
   );
   const ready =
     completedCases === cases.length &&
-    doesNotRubberStamp &&
-    noticesAuthorityLimits &&
-    noteQuality.passed &&
-    effectiveRubricScore >= 3;
+    inspectedEvidenceCount >= 4 &&
+    challengePassed &&
+    noteQuality.passed;
   const completionRequirements = [
     {
       label: 'Choose an action and authority check for every case',
       met: completedCases === cases.length,
     },
     {
-      label: 'Avoid rubber-stamping the risky recommendations',
-      met: Boolean(doesNotRubberStamp),
+      label: 'Open source evidence for at least four cases',
+      met: inspectedEvidenceCount >= 4,
     },
     {
-      label: 'Notice authority limits on high-stakes cases',
-      met: Boolean(noticesAuthorityLimits),
+      label: 'Complete the judgment challenge without treating pressure as authority',
+      met: challengePassed,
     },
     {
       label: 'Write a review note with evidence, authority, and next steps',
       met: noteQuality.passed,
-    },
-    {
-      label: 'Meet at least three local self-checks, with one self-attested override allowed',
-      met: effectiveRubricScore >= 3,
     },
   ];
 
@@ -306,6 +362,9 @@ export default function ReviewLoopLab() {
           ? draft.openedEvidence
           : {},
       );
+      setChallengeChoice(
+        typeof draft.challengeChoice === 'string' ? draft.challengeChoice : '',
+      );
       setNote(typeof draft.note === 'string' ? draft.note : '');
       setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
     }
@@ -321,6 +380,7 @@ export default function ReviewLoopLab() {
       Object.keys(choices).length > 0 ||
       Object.keys(authority).length > 0 ||
       Object.keys(openedEvidence).length > 0 ||
+      Boolean(challengeChoice) ||
       Boolean(note.trim());
 
     if (!hasWork) {
@@ -331,10 +391,11 @@ export default function ReviewLoopLab() {
       choices,
       authority,
       openedEvidence,
+      challengeChoice,
       note,
     });
     setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
-  }, [draftLoaded, choices, authority, openedEvidence, note]);
+  }, [draftLoaded, choices, authority, openedEvidence, challengeChoice, note]);
 
   function choose(caseId, decisionId) {
     setChoices((current) => ({ ...current, [caseId]: decisionId }));
@@ -489,6 +550,38 @@ export default function ReviewLoopLab() {
           {textQualitySummary(noteQuality)}
         </small>
       </label>
+
+      <div className="review-lab__challenge">
+        <div className="review-lab__challenge-head">
+          <ShieldAlert size={20} aria-hidden="true" />
+          <div>
+            <h3>{judgmentChallenge.title}</h3>
+            <p>{judgmentChallenge.prompt}</p>
+          </div>
+        </div>
+        <div className="review-lab__challenge-grid">
+          {judgmentChallenge.options.map((option) => (
+            <button
+              aria-pressed={challengeChoice === option.id}
+              className={challengeChoice === option.id ? 'is-selected' : ''}
+              key={option.id}
+              onClick={() => setChallengeChoice(option.id)}
+              type="button"
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+        {challengeChoice && (
+          <p className="review-lab__challenge-feedback">
+            {
+              judgmentChallenge.options.find(
+                (option) => option.id === challengeChoice,
+              )?.feedback
+            }
+          </p>
+        )}
+      </div>
 
       <div className="review-lab__self-check">
         <div className="review-lab__self-check-header">

@@ -16,51 +16,51 @@ import { analyzeTextQuality, textQualitySummary } from '../lib/textQuality.js';
 import './confidence-trap.css';
 
 const evidenceNotes = [
-  'I did not see a clear path to promotion.',
-  'Pay was better elsewhere.',
-  'My manager was supportive, but the workload was too high.',
-  'I wanted remote flexibility.',
-  'I was underpaid compared with market.',
-  'No advancement opportunities.',
-  'Burnout.',
-  'Accepted a higher-paying role.',
+  'Quarterly grant report was submitted nine days late after the state portal was unavailable for two business days.',
+  'Subrecipient uploaded receipts, but the reviewer could not access the folder until permissions were corrected.',
+  'One site visit found missing receipt documentation for a small equipment purchase.',
+  'Allowable-cost guidance changed midway through the quarter.',
+  'A small program office had a staff vacancy during the reporting window.',
+  'Two reports were submitted on time after an approved extension.',
+  'A vendor invoice arrived late and was recorded after the initial review.',
+  'Training attendance logs were complete, but one log was dated after submission.',
 ];
 
 const claims = [
   {
-    id: 'growth-main',
-    text: 'The main reason people are leaving appears to be lack of career growth.',
+    id: 'late-reporting-main',
+    text: 'Late reporting is the main compliance risk in this grant file.',
     answer: 'overstated',
     feedback:
-      'Career growth appears in two notes, but the sample is too small and uncoded to rank it as the main reason.',
+      'Late reporting appears, but the packet also shows portal access issues, documentation gaps, guidance changes, staffing constraints, and approved extensions.',
   },
   {
-    id: 'comp-secondary',
-    text: 'Compensation concerns were mentioned, but they seem secondary.',
+    id: 'subrecipient-cause',
+    text: 'Most of the delays appear caused by poor subrecipient documentation.',
     answer: 'overstated',
     feedback:
-      'Compensation appears in three notes. Calling it secondary is not supported by the packet.',
+      'The packet mentions one documentation issue and one folder-access problem. It does not support assigning most delays to subrecipient documentation.',
   },
   {
-    id: 'mentorship',
-    text: 'The company should prioritize mentorship, internal mobility, and manager training.',
+    id: 'withhold-reimbursements',
+    text: 'The agency should withhold reimbursements until the subrecipient completes compliance retraining.',
     answer: 'unsupported',
     feedback:
-      'Internal mobility is connected to the evidence. Mentorship and manager training may be reasonable ideas, but they are not shown by these notes.',
+      'The packet does not establish a sanction threshold, reimbursement rule, corrective-action requirement, or accountable approval path.',
   },
   {
-    id: 'avoid-salary',
-    text: 'The company should avoid broad salary adjustments.',
-    answer: 'unsupported',
+    id: 'portal-issues',
+    text: 'Portal access and permissions issues may have contributed to some reporting problems.',
+    answer: 'supported',
     feedback:
-      'The packet does not contain compensation analysis, market benchmarking, budget context, or enough cases to justify this recommendation.',
+      'The evidence directly mentions a portal outage and a folder-permission problem.',
   },
   {
-    id: 'improve-retention',
-    text: 'This approach is likely to improve retention.',
+    id: 'training-priority',
+    text: 'Compliance training should be the primary corrective action.',
     answer: 'unsupported',
     feedback:
-      'This is a prediction. The evidence packet does not show whether the proposed actions would improve retention.',
+      'Training might be useful, but the packet points to mixed causes and does not show training as the primary fix.',
   },
 ];
 
@@ -71,7 +71,7 @@ const options = [
 ];
 
 const betterSummary =
-  'In this small sample of exit notes, employees mention several possible retention factors, including career growth, compensation, workload, flexibility, and burnout. Career growth and compensation both appear more than once, but the sample is too limited to rank causes confidently. A responsible next step would be to review a larger set of exit data, code themes consistently, and compare patterns across teams or roles before choosing interventions.';
+  'This grant file shows a mixed set of possible compliance issues, including late reporting, portal access problems, documentation gaps, changing guidance, staffing constraints, and timing questions. The packet is too limited to rank causes or recommend sanctions. A responsible next step would be to verify the applicable grant rules, review the source records with the accountable program owner, separate technical access issues from documentation gaps, and document any corrective action before acting on reimbursements.';
 
 const rubricChecks = [
   {
@@ -79,31 +79,32 @@ const rubricChecks = [
     label: 'Names the evidence limit',
     test: (text) =>
       includesAny(text, [
-        'small sample',
-        'limited sample',
-        'sample is limited',
-        'only these notes',
-        'few responses',
+        'limited',
+        'packet',
+        'file',
+        'small set',
+        'not enough',
         'eight',
         '8',
       ]) &&
-      includesAny(text, ['limited', 'not enough', 'cannot', 'can’t', 'too small', 'caution']),
-    why: 'A safer rewrite should not treat eight notes as enough to rank causes confidently.',
+      includesAny(text, ['limited', 'not enough', 'cannot', 'can’t', 'caution', 'verify']),
+    why: 'A safer rewrite should not treat a short evidence packet as enough to rank causes confidently.',
   },
   {
     id: 'multiple-factors',
     label: 'Keeps multiple factors visible',
     test: (text) =>
       countMatches(text, [
-        'career',
-        'growth',
-        'compensation',
-        'pay',
-        'workload',
-        'flexibility',
-        'burnout',
+        'late',
+        'portal',
+        'access',
+        'documentation',
+        'guidance',
+        'staff',
+        'invoice',
+        'extension',
       ]) >= 3,
-    why: 'The evidence packet contains more than one plausible retention factor.',
+    why: 'The evidence packet contains more than one plausible compliance factor.',
   },
   {
     id: 'avoids-ranking',
@@ -115,9 +116,10 @@ const rubricChecks = [
         'the cause',
         'clearly caused',
         'secondary',
-        'unnecessary',
+        'must withhold',
+        'withhold reimbursement',
       ]),
-    why: 'The packet does not justify ranking causes or dismissing compensation.',
+    why: 'The packet does not justify ranking causes or jumping to a sanction.',
   },
   {
     id: 'verification-step',
@@ -134,6 +136,8 @@ const rubricChecks = [
         'compare',
         'verify',
         'validate',
+        'program owner',
+        'grant rules',
       ]),
     why: 'A strong rewrite points to what evidence would be needed before acting.',
   },
@@ -142,7 +146,7 @@ const rubricChecks = [
     label: 'Separates observation from recommendation',
     test: (text) =>
       includesAny(text, ['mention', 'appear', 'suggest', 'may', 'possible']) &&
-      !includesAny(text, ['should prioritize', 'should avoid', 'will improve']),
+      !includesAny(text, ['should withhold', 'must withhold', 'primary corrective']),
     why: 'The draft should report what the notes show without jumping straight to a confident intervention.',
   },
 ];
@@ -163,6 +167,7 @@ export default function ConfidenceTrap() {
   const [evidenceVisible, setEvidenceVisible] = useState(false);
   const [revisedConfidence, setRevisedConfidence] = useState(null);
   const [classifications, setClassifications] = useState({});
+  const [calibrationNote, setCalibrationNote] = useState('');
   const [rewrite, setRewrite] = useState('');
   const [selfMarked, setSelfMarked] = useState({});
   const [showDebrief, setShowDebrief] = useState(false);
@@ -205,14 +210,14 @@ export default function ConfidenceTrap() {
       analyzeTextQuality(rewrite, {
         minChars: 130,
         minWords: 22,
-        requiredAny: ['sample', 'evidence', 'limited', 'review', 'data'],
+        requiredAny: ['evidence', 'limited', 'review', 'verify', 'rules'],
         requiredGroups: [
           {
-            terms: ['small sample', 'limited', 'eight', '8', 'not enough'],
+            terms: ['limited', 'packet', 'not enough', 'short', 'file'],
             message: 'Name the evidence limit.',
           },
           {
-            terms: ['review', 'more data', 'larger set', 'code themes', 'compare'],
+            terms: ['review', 'verify', 'rules', 'source records', 'program owner', 'compare'],
             message: 'Name a verification or next-evidence step.',
           },
           {
@@ -223,18 +228,22 @@ export default function ConfidenceTrap() {
       }),
     [rewrite],
   );
-  const confidenceRevised =
-    revisedConfidence !== null &&
-    (revisedConfidence < confidence ||
-      (confidence <= 2 && revisedConfidence <= confidence));
+  const calibrationQuality = useMemo(
+    () =>
+      analyzeTextQuality(calibrationNote, {
+        minChars: 90,
+        minWords: 15,
+      }),
+    [calibrationNote],
+  );
+  const confidenceRevised = revisedConfidence !== null;
   const ready =
     firstMove &&
     evidenceVisible &&
     confidenceRevised &&
     completedClaims === claims.length &&
-    correctCount >= 3 &&
-    rewriteQuality.passed &&
-    effectiveRubricScore >= 3;
+    calibrationQuality.passed &&
+    rewriteQuality.passed;
   const completionRequirements = [
     {
       label: 'Choose a first move before seeing the evidence',
@@ -245,7 +254,7 @@ export default function ConfidenceTrap() {
       met: evidenceVisible,
     },
     {
-      label: 'Revise or justify low confidence after seeing evidence',
+      label: 'Re-rate confidence after seeing evidence',
       met: confidenceRevised,
     },
     {
@@ -253,16 +262,12 @@ export default function ConfidenceTrap() {
       met: completedClaims === claims.length,
     },
     {
-      label: 'Match at least three claim checks to the evidence',
-      met: correctCount >= 3,
+      label: 'Explain what changed after inspecting the evidence',
+      met: calibrationQuality.passed,
     },
     {
       label: 'Write an evidence-aligned rewrite',
       met: rewriteQuality.passed,
-    },
-    {
-      label: 'Meet at least three local self-checks, with one self-attested override allowed',
-      met: effectiveRubricScore >= 3,
     },
   ];
 
@@ -282,6 +287,9 @@ export default function ConfidenceTrap() {
           ? draft.classifications
           : {},
       );
+      setCalibrationNote(
+        typeof draft.calibrationNote === 'string' ? draft.calibrationNote : '',
+      );
       setRewrite(typeof draft.rewrite === 'string' ? draft.rewrite : '');
       setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
     }
@@ -299,6 +307,7 @@ export default function ConfidenceTrap() {
       evidenceVisible ||
       revisedConfidence !== null ||
       Object.keys(classifications).length > 0 ||
+      Boolean(calibrationNote.trim()) ||
       Boolean(rewrite.trim());
 
     if (!hasWork) {
@@ -311,6 +320,7 @@ export default function ConfidenceTrap() {
       evidenceVisible,
       revisedConfidence,
       classifications,
+      calibrationNote,
       rewrite,
     });
     setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
@@ -321,6 +331,7 @@ export default function ConfidenceTrap() {
     evidenceVisible,
     revisedConfidence,
     classifications,
+    calibrationNote,
     rewrite,
   ]);
 
@@ -358,21 +369,20 @@ export default function ConfidenceTrap() {
       <div className="confidence-trap__scenario">
         <h3>Scenario</h3>
         <p>
-          You are preparing a short internal summary for a team meeting. A
+          You are preparing a short briefing for a grant compliance meeting. A
           colleague used AI to generate the draft below and says, "Looks good to
-          me. Can you send it?"
+          me. Can you send it to the program director?"
         </p>
       </div>
 
       <div className="confidence-trap__draft">
         <h3>AI-generated draft</h3>
         <p>
-          Based on recent employee feedback, the main reason people are leaving
-          appears to be lack of career growth. Compensation concerns were
-          mentioned, but they seem secondary. The company should prioritize
-          mentorship, internal mobility, and manager training rather than broad
-          salary adjustments. This approach is likely to improve retention while
-          avoiding unnecessary cost increases.
+          Late reporting is the main compliance risk in this grant file. Most
+          delays appear caused by poor subrecipient documentation. The agency
+          should withhold reimbursements until the subrecipient completes
+          compliance retraining. This approach will reduce repeat findings and
+          show strong fiscal oversight.
         </p>
       </div>
 
@@ -443,9 +453,9 @@ export default function ConfidenceTrap() {
           <div className="confidence-trap__claims">
             <h3>Claim check</h3>
             <p>
-              Classify each claim before revealing the debrief. At least three
-              claim checks need to match the evidence, and your confidence
-              should adjust when the evidence is weaker than the draft sounds.
+              Classify each claim, then compare your classifications with the
+              evidence feedback. The point is to inspect how confidence is built,
+              not to guess a hidden password.
             </p>
             {claims.map((claim) => (
               <article className="confidence-trap__claim" key={claim.id}>
@@ -468,12 +478,41 @@ export default function ConfidenceTrap() {
                 </div>
               </article>
             ))}
+            {completedClaims === claims.length && (
+              <div className="confidence-trap__claim-feedback">
+                <h3>Evidence feedback</h3>
+                <ul>
+                  {claims.map((claim) => (
+                    <li key={claim.id}>
+                      <strong>{claim.text}</strong>
+                      <span>
+                        Your label: {classifications[claim.id]}. Stronger label:
+                        {' '}{claim.answer}. {claim.feedback}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </>
       )}
 
       {evidenceVisible && (
         <>
+          <label className="confidence-trap__rewrite">
+            <span>What changed after you inspected the evidence?</span>
+            <textarea
+              onChange={(event) => setCalibrationNote(event.target.value)}
+              placeholder="Name one claim that became weaker, stronger, or more uncertain once you saw the evidence."
+              rows="4"
+              value={calibrationNote}
+            />
+            <small className={calibrationQuality.passed ? 'is-passed' : ''}>
+              {textQualitySummary(calibrationQuality)}
+            </small>
+          </label>
+
           <label className="confidence-trap__rewrite">
             <span>Rewrite the summary so it is useful, cautious, and evidence-aligned.</span>
             <textarea
@@ -497,7 +536,7 @@ export default function ConfidenceTrap() {
             <p>
               This section shows what the page can detect in your answer so far.
               It supports reflection; it does not verify policy compliance or
-              role authorization.
+              role authorization. It is advisory and does not block the debrief.
             </p>
             <p className="confidence-trap__self-mark-count" aria-live="polite">
               {selfMarkedScore}/{rubricChecks.length} checked by you

@@ -36,9 +36,9 @@ const criteria = [
   },
   {
     id: 'executive-writing',
-    text: 'Strong written communication in executive-facing updates.',
+    text: 'Strong written communication in senior-leadership briefings.',
     context:
-      'Some departments rarely send executive-facing updates. Several employees communicate impact through technical notes, direct customer support, or operational handoffs.',
+      'Some departments rarely send senior-leadership briefings. Several employees communicate impact through technical notes, resident service work, field reports, or operational handoffs.',
     expectedConcerns: ['visibility', 'communication', 'unclear'],
     safer:
       'Clear communication appropriate to the role, audience, and work context, evaluated using examples from multiple communication channels.',
@@ -63,12 +63,12 @@ const criteria = [
   },
   {
     id: 'group-confidence',
-    text: 'Demonstrated confidence in group discussion.',
+    text: 'Demonstrated responsiveness in live public-facing meetings.',
     context:
-      'Some high-performing employees contribute through written analysis, one-on-one coaching, or quiet technical leadership rather than assertive group discussion.',
+      'Some high-performing employees work in field, records, back-office, or accommodation-supported roles where responsiveness is shown through case accuracy, follow-through, documentation, and service recovery rather than live meeting performance.',
     expectedConcerns: ['communication', 'visibility'],
     safer:
-      'Evidence of leadership behaviors such as judgment, collaboration, follow-through, support for others, and problem-solving across different interaction styles.',
+      'Evidence of service judgment, collaboration, follow-through, support for others, and problem-solving across different public service interaction styles.',
   },
 ];
 
@@ -131,6 +131,7 @@ export default function FairnessLensLab() {
   const [showContext, setShowContext] = useState(false);
   const [revisedDecision, setRevisedDecision] = useState('');
   const [selectedConcerns, setSelectedConcerns] = useState({});
+  const [rationale, setRationale] = useState('');
   const [rewrite, setRewrite] = useState('');
   const [selfMarked, setSelfMarked] = useState({});
   const [showDebrief, setShowDebrief] = useState(false);
@@ -201,14 +202,21 @@ export default function FairnessLensLab() {
       }),
     [rewrite],
   );
+  const rationaleQuality = useMemo(
+    () =>
+      analyzeTextQuality(rationale, {
+        minChars: 110,
+        minWords: 18,
+      }),
+    [rationale],
+  );
 
   const ready =
     showContext &&
     revisedDecision &&
     concernComplete &&
-    concernScore >= 4 &&
-    rewriteQuality.passed &&
-    effectiveRubricScore >= 3;
+    rationaleQuality.passed &&
+    rewriteQuality.passed;
   const completionRequirements = [
     {
       label: 'Make an initial decision',
@@ -227,16 +235,12 @@ export default function FairnessLensLab() {
       met: concernComplete,
     },
     {
-      label: 'Identify the stronger concern pattern on at least four criteria',
-      met: concernScore >= 4,
+      label: 'Explain who has less realistic access to the criteria and why',
+      met: rationaleQuality.passed,
     },
     {
       label: 'Write evidence-based revised criteria',
       met: rewriteQuality.passed,
-    },
-    {
-      label: 'Meet at least three local self-checks, with one self-attested override allowed',
-      met: effectiveRubricScore >= 3,
     },
   ];
 
@@ -255,6 +259,7 @@ export default function FairnessLensLab() {
           ? draft.selectedConcerns
           : {},
       );
+      setRationale(typeof draft.rationale === 'string' ? draft.rationale : '');
       setRewrite(typeof draft.rewrite === 'string' ? draft.rewrite : '');
       setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
     }
@@ -271,6 +276,7 @@ export default function FairnessLensLab() {
       showContext ||
       Boolean(revisedDecision) ||
       Object.keys(selectedConcerns).length > 0 ||
+      Boolean(rationale.trim()) ||
       Boolean(rewrite.trim());
 
     if (!hasWork) {
@@ -282,6 +288,7 @@ export default function FairnessLensLab() {
       showContext,
       revisedDecision,
       selectedConcerns,
+      rationale,
       rewrite,
     });
     setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
@@ -291,6 +298,7 @@ export default function FairnessLensLab() {
     showContext,
     revisedDecision,
     selectedConcerns,
+    rationale,
     rewrite,
   ]);
 
@@ -334,10 +342,10 @@ export default function FairnessLensLab() {
       <div className="fairness-lab__scenario">
         <h3>Scenario</h3>
         <p>
-          A team asks AI to draft selection criteria for a limited professional
-          development program. The output looks neutral and organized. Your job
-          is to decide whether it gives people a realistic and fair opportunity
-          to demonstrate potential.
+          A public agency asks AI to draft selection criteria for a limited
+          cross-agency fellowship. The output looks neutral and organized. Your
+          job is to decide whether it gives people a realistic and fair
+          opportunity to demonstrate potential.
         </p>
       </div>
 
@@ -431,6 +439,22 @@ export default function FairnessLensLab() {
 
           <label className="fairness-lab__rewrite">
             <span>
+              Pick two criteria and explain who may have less realistic access
+              to satisfying them, even if the wording sounds neutral.
+            </span>
+            <textarea
+              onChange={(event) => setRationale(event.target.value)}
+              placeholder="Example: Optional after-hours committees may reward employees with schedule flexibility rather than stronger public service judgment..."
+              rows="5"
+              value={rationale}
+            />
+            <small className={rationaleQuality.passed ? 'is-passed' : ''}>
+              {textQualitySummary(rationaleQuality)}
+            </small>
+          </label>
+
+          <label className="fairness-lab__rewrite">
+            <span>
               Rewrite the criteria so they are evidence-based, role-relevant,
               and less dependent on informal access.
             </span>
@@ -455,7 +479,8 @@ export default function FairnessLensLab() {
             <p>
               This section shows what the page can detect in your answer so far.
               These checks support reflection; they do not verify correctness,
-              policy compliance, or role authorization.
+              policy compliance, or role authorization. They are advisory and
+              do not block the debrief.
             </p>
             <p className="fairness-lab__self-mark-count" aria-live="polite">
               {selfMarkedScore}/{rubricChecks.length} checked by you

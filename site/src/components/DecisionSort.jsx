@@ -100,13 +100,13 @@ const tasks = [
   {
     id: 'policy-complaint',
     prompt:
-      'A service team wants AI to identify the policy section that applies to a customer complaint and draft a response outline.',
+      'A public benefits office wants AI to identify the policy section that applies to an appeal and draft a response outline.',
     twist:
-      'The customer alleges discriminatory treatment, and the policy page AI cites was replaced by a new version last week.',
+      'The resident alleges discriminatory treatment, and the policy page AI cites was replaced by a new version last week.',
     initialExpected: ['safeguards', 'formal'],
     revisedExpected: ['formal'],
     rationale:
-      'Current-source verification is not enough when a complaint raises rights, fairness, or legal exposure. Escalation comes before response.',
+      'Current-source verification is not enough when an appeal raises rights, fairness, or legal exposure. Escalation comes before response.',
   },
   {
     id: 'meeting-checklist',
@@ -120,6 +120,13 @@ const tasks = [
       'Some uses stay low risk after context is added. The point is proportional judgment, not reflexive escalation.',
   },
 ];
+
+const judgmentChallenge = {
+  prompt:
+    'A director asks for an AI-assisted draft explaining why a resident was denied a housing assistance exception. The file contains income records, disability accommodation history, and a recent policy memo that may change the result. The director says the response is overdue and asks you to "just get a clean draft started."',
+  question:
+    'Choose the most responsible path and explain the tension you are managing. There is not a perfect option: speed matters, but so do privacy, accuracy, legal rights, and human accountability.',
+};
 
 const rubricChecks = [
   {
@@ -169,6 +176,8 @@ export default function DecisionSort({ requiresReflection }) {
   const [revisedChoices, setRevisedChoices] = useState({});
   const [twistsVisible, setTwistsVisible] = useState(false);
   const [reflection, setReflection] = useState('');
+  const [challengeChoice, setChallengeChoice] = useState('');
+  const [challengeRationale, setChallengeRationale] = useState('');
   const [selfMarked, setSelfMarked] = useState({});
   const [showDebrief, setShowDebrief] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
@@ -211,6 +220,14 @@ export default function DecisionSort({ requiresReflection }) {
       );
       setTwistsVisible(Boolean(draft.twistsVisible));
       setReflection(typeof draft.reflection === 'string' ? draft.reflection : '');
+      setChallengeChoice(
+        typeof draft.challengeChoice === 'string' ? draft.challengeChoice : '',
+      );
+      setChallengeRationale(
+        typeof draft.challengeRationale === 'string'
+          ? draft.challengeRationale
+          : '',
+      );
       setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
     }
     setDraftLoaded(true);
@@ -225,7 +242,9 @@ export default function DecisionSort({ requiresReflection }) {
       Object.keys(initialChoices).length > 0 ||
       Object.keys(revisedChoices).length > 0 ||
       twistsVisible ||
-      Boolean(reflection.trim());
+      Boolean(reflection.trim()) ||
+      Boolean(challengeChoice) ||
+      Boolean(challengeRationale.trim());
 
     if (!hasWork) {
       return;
@@ -236,9 +255,19 @@ export default function DecisionSort({ requiresReflection }) {
       revisedChoices,
       twistsVisible,
       reflection,
+      challengeChoice,
+      challengeRationale,
     });
     setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
-  }, [draftLoaded, initialChoices, revisedChoices, twistsVisible, reflection]);
+  }, [
+    draftLoaded,
+    initialChoices,
+    revisedChoices,
+    twistsVisible,
+    reflection,
+    challengeChoice,
+    challengeRationale,
+  ]);
 
   const initialCompleted = useMemo(
     () => tasks.filter((task) => initialChoices[task.id]).length,
@@ -256,6 +285,14 @@ export default function DecisionSort({ requiresReflection }) {
         requiredAny: ['context', 'stakes', 'data', 'review', 'verify', 'people'],
       }),
     [reflection],
+  );
+  const challengeQuality = useMemo(
+    () =>
+      analyzeTextQuality(challengeRationale, {
+        minChars: 100,
+        minWords: 18,
+      }),
+    [challengeRationale],
   );
   const fitScore = useMemo(
     () =>
@@ -286,25 +323,25 @@ export default function DecisionSort({ requiresReflection }) {
   const initialReady = initialCompleted === tasks.length;
   const finalReady =
     revisedCompleted === tasks.length &&
-    fitScore >= 4 &&
-    effectiveRubricScore >= 3 &&
-    reflectionQuality.passed;
+    reflectionQuality.passed &&
+    Boolean(challengeChoice) &&
+    challengeQuality.passed;
   const finalRequirements = [
     {
       label: 'Revise all six request classifications after the complication reveal',
       met: revisedCompleted === tasks.length,
     },
     {
-      label: 'Match the stronger risk lens on at least four scenarios',
-      met: fitScore >= 4,
-    },
-    {
-      label: 'Meet at least three local self-checks, with one self-attested override allowed',
-      met: effectiveRubricScore >= 3,
-    },
-    {
       label: 'Write a substantive explanation of the context shift',
       met: reflectionQuality.passed,
+    },
+    {
+      label: 'Choose a path in the judgment challenge',
+      met: Boolean(challengeChoice),
+    },
+    {
+      label: 'Explain the tradeoff in the judgment challenge',
+      met: challengeQuality.passed,
     },
   ];
 
@@ -472,6 +509,38 @@ export default function DecisionSort({ requiresReflection }) {
             </small>
           </label>
 
+          <div className="decision-sort__challenge">
+            <h3>Judgment Challenge</h3>
+            <p>{judgmentChallenge.prompt}</p>
+            <p>{judgmentChallenge.question}</p>
+            <div className="decision-sort__buttons">
+              {categories.map(({ id, label, icon: Icon }) => (
+                <button
+                  aria-pressed={challengeChoice === id}
+                  className={challengeChoice === id ? 'is-selected' : ''}
+                  key={id}
+                  onClick={() => setChallengeChoice(id)}
+                  type="button"
+                >
+                  <Icon size={17} aria-hidden="true" />
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+            <label>
+              <span>Explain your judgment.</span>
+              <textarea
+                onChange={(event) => setChallengeRationale(event.target.value)}
+                placeholder="Name the competing pressures, then explain what you would do next and why."
+                rows="5"
+                value={challengeRationale}
+              />
+            </label>
+            <small className={challengeQuality.passed ? 'is-passed' : ''}>
+              {textQualitySummary(challengeQuality)}
+            </small>
+          </div>
+
           <div className="decision-sort__self-check">
             <div className="decision-sort__self-check-header">
               <h3>What your answer shows so far</h3>
@@ -480,7 +549,8 @@ export default function DecisionSort({ requiresReflection }) {
             <p>
               This section shows what the page can detect in your answer so far.
               These checks support reflection; they do not verify correctness,
-              policy compliance, or role authorization.
+              policy compliance, or role authorization. They are advisory and
+              do not block the debrief.
             </p>
             <p className="decision-sort__self-mark-count" aria-live="polite">
               {selfMarkedScore}/{rubricChecks.length} checked by you

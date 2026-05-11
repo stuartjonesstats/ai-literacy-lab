@@ -35,6 +35,7 @@
 .review-lab__criteria,
 .review-lab__case,
 .review-lab__note,
+.review-lab__challenge,
 .review-lab__self-check,
 .review-lab__debrief {
   border: 1px solid var(--line);
@@ -45,6 +46,7 @@
 
 .review-lab__scenario,
 .review-lab__criteria,
+.review-lab__challenge,
 .review-lab__self-check {
   background: #f8fbf9;
 }
@@ -194,6 +196,40 @@
   color: var(--accent-strong);
 }
 
+.review-lab__challenge {
+  display: grid;
+  gap: 12px;
+}
+
+.review-lab__challenge-head {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 10px;
+}
+
+.review-lab__challenge-head svg {
+  color: var(--warn);
+  margin-top: 3px;
+}
+
+.review-lab__challenge-head h3 {
+  margin: 0 0 6px;
+}
+
+.review-lab__challenge-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.review-lab__challenge-feedback {
+  border-left: 4px solid var(--accent);
+  color: var(--accent-strong);
+  font-weight: 700;
+  margin: 0;
+  padding-left: 12px;
+}
+
 .review-lab__self-check-header {
   display: flex;
   align-items: center;
@@ -321,7 +357,8 @@
 
 @media (max-width: 860px) {
   .review-lab__button-grid,
-  .review-lab__authority-grid {
+  .review-lab__authority-grid,
+  .review-lab__challenge-grid {
     grid-template-columns: 1fr;
   }
 

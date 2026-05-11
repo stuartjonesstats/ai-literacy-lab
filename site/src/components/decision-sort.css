@@ -41,6 +41,7 @@
 .decision-sort__twist,
 .decision-sort__item,
 .decision-sort__reflection,
+.decision-sort__challenge,
 .decision-sort__self-check {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -126,11 +127,25 @@
   margin-top: 14px;
 }
 
-.decision-sort__reflection span {
+.decision-sort__challenge {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  background: #fbfaf5;
+}
+
+.decision-sort__challenge label {
+  display: grid;
+  gap: 8px;
+}
+
+.decision-sort__reflection span,
+.decision-sort__challenge span {
   font-weight: 800;
 }
 
-.decision-sort__reflection textarea {
+.decision-sort__reflection textarea,
+.decision-sort__challenge textarea {
   border: 1px solid var(--line);
   border-radius: 6px;
   color: var(--ink);
@@ -140,17 +155,20 @@
   width: 100%;
 }
 
-.decision-sort__reflection textarea:focus {
+.decision-sort__reflection textarea:focus,
+.decision-sort__challenge textarea:focus {
   border-color: var(--focus);
   outline: 2px solid rgba(44, 121, 196, 0.18);
 }
 
-.decision-sort__reflection small {
+.decision-sort__reflection small,
+.decision-sort__challenge small {
   color: var(--warn);
   font-weight: 700;
 }
 
-.decision-sort__reflection small.is-passed {
+.decision-sort__reflection small.is-passed,
+.decision-sort__challenge small.is-passed {
   color: var(--accent-strong);
 }
 

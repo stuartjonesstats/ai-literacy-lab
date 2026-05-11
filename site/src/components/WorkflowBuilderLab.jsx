@@ -19,7 +19,7 @@ const failureModes = [
   {
     id: 'data',
     label: 'Data boundaries are unclear',
-    why: 'The notes include names, contract details, and unresolved claims that may not belong in a prompt.',
+    why: 'The notes include vendor names, pricing, access complaints, and unresolved legal claims that may not belong in a prompt.',
   },
   {
     id: 'facts',
@@ -39,12 +39,12 @@ const failureModes = [
 ];
 
 const messyNotes = [
-  'Steering committee wants a one-page briefing on the delayed customer portal rollout.',
-  'Draft notes mention two named customers, one contract renewal, and an internal staffing gap.',
-  'Support says access-ticket volume is up, but the exact baseline is not yet confirmed.',
-  'Engineering says the fix is "probably next sprint"; product has not approved that wording.',
-  'Sales wants the note to sound confident because an executive readout is tomorrow morning.',
-  'Open question: whether the accessibility issue is one bug or several separate failures.',
+  'Deputy director wants a one-page briefing on whether to renew the public-records request platform.',
+  'Draft notes mention a named vendor representative, quoted pricing, and one evaluator\'s internal concern.',
+  'Clerk team says access complaints are up, but the exact baseline is not yet confirmed.',
+  'Accessibility coordinator says upload forms may fail with screen readers; the vendor has not approved remediation wording.',
+  'Procurement wants the note by tomorrow morning because the renewal window is closing.',
+  'Open question: whether public-records deadlines or procurement rules require counsel review before any recommendation.',
 ];
 
 const workflowStages = [
@@ -59,7 +59,7 @@ const workflowStages = [
     id: 'sanitize',
     title: 'Sanitize and minimize notes',
     strong:
-      'Remove names, contract specifics, and unnecessary internal staffing details before prompting.',
+      'Remove vendor names, quoted pricing, evaluator comments, and unnecessary request details before prompting.',
     helpful: true,
   },
   {
@@ -80,7 +80,7 @@ const workflowStages = [
     id: 'verify',
     title: 'Verify decision-relevant claims',
     strong:
-      'Check dates, volume changes, commitments, customer impact, and launch wording before use.',
+      'Check renewal dates, complaint volume, accessibility claims, legal deadlines, and approved vendor wording before use.',
     helpful: true,
   },
   {
@@ -94,7 +94,7 @@ const workflowStages = [
     id: 'paste-raw',
     title: 'Paste the raw notes for maximum context',
     strong:
-      'Tempting, but this exposes unnecessary customer, contract, and internal details.',
+      'Tempting, but this exposes unnecessary vendor, pricing, access, and internal evaluation details.',
     helpful: false,
   },
   {
@@ -118,7 +118,7 @@ const rubricChecks = [
     id: 'purpose',
     label: 'Defines the purpose before prompting',
     test: ({ planText }) =>
-      includesAny(planText, ['purpose', 'audience', 'decision', 'committee', 'goal']),
+      includesAny(planText, ['purpose', 'audience', 'decision', 'committee', 'procurement', 'briefing', 'goal']),
     why: 'AI works better as part of a task when the human defines what the work is for.',
   },
   {
@@ -194,43 +194,43 @@ const usePlanFields = [
     id: 'task',
     label: 'Allowed AI task',
     prompt: 'What may AI help with in this workflow?',
-    placeholder: 'Organize sanitized notes into themes and open questions...',
+    placeholder: 'Organize sanitized procurement and accessibility notes into themes and open questions...',
   },
   {
     id: 'data',
     label: 'Data boundary',
     prompt: 'What information must be removed, redacted, or abstracted first?',
-    placeholder: 'Remove names, customer details, contract specifics, and staffing details...',
+    placeholder: 'Remove vendor names, quoted pricing, evaluator comments, and requester details...',
   },
   {
     id: 'source',
     label: 'Source of truth',
     prompt: 'What source should the human use to verify important claims?',
-    placeholder: 'Ticket records, product notes, approved launch wording, support metrics...',
+    placeholder: 'Procurement file, accessibility testing notes, public-records logs, approved vendor communications...',
   },
   {
     id: 'verification',
     label: 'Verification owner',
     prompt: 'Who checks dates, numbers, commitments, and unsupported claims?',
-    placeholder: 'I will verify volume changes and launch language before the briefing is used...',
+    placeholder: 'I will verify complaint volume, renewal dates, accessibility claims, and approved wording before use...',
   },
   {
     id: 'humanOwner',
     label: 'Final human owner',
     prompt: 'Who owns the final note or decision?',
-    placeholder: 'The product owner or briefing author owns the final wording...',
+    placeholder: 'The briefing author or procurement lead owns the final recommendation and wording...',
   },
   {
     id: 'blocked',
     label: 'Blocked AI task',
     prompt: 'What must AI not decide or invent?',
-    placeholder: 'Do not invent missing facts, rank customer impact, or make commitments...',
+    placeholder: 'Do not invent missing facts, select the vendor, make legal calls, or make commitments...',
   },
   {
     id: 'stop',
     label: 'Stop or escalate condition',
     prompt: 'What would make you stop and ask for review?',
-    placeholder: 'Escalate if sensitive customer details, legal commitments, or unapproved claims are needed...',
+    placeholder: 'Escalate if legal deadlines, accessibility obligations, procurement exceptions, or sensitive details are needed...',
   },
 ];
 
@@ -249,6 +249,7 @@ export default function WorkflowBuilderLab() {
   const [selectedFailures, setSelectedFailures] = useState([]);
   const [selectedStages, setSelectedStages] = useState([]);
   const [usePlan, setUsePlan] = useState({});
+  const [judgmentResponse, setJudgmentResponse] = useState('');
   const [selfMarked, setSelfMarked] = useState({});
   const [showDebrief, setShowDebrief] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
@@ -296,6 +297,33 @@ export default function WorkflowBuilderLab() {
       }),
     [planText],
   );
+  const judgmentQuality = useMemo(
+    () =>
+      analyzeTextQuality(judgmentResponse, {
+        minChars: 140,
+        minWords: 26,
+        requiredAny: ['speed', 'verify', 'minimize', 'accountable', 'because'],
+        requiredGroups: [
+          {
+            terms: ['speed', 'deadline', 'tomorrow', 'fast', 'quick'],
+            message: 'Name the pressure to move quickly.',
+          },
+          {
+            terms: ['verify', 'check', 'confirm', 'source of truth', 'review'],
+            message: 'Name what must still be verified.',
+          },
+          {
+            terms: ['minimize', 'redact', 'remove', 'sanitized', 'only'],
+            message: 'Name how data exposure will be limited.',
+          },
+          {
+            terms: ['accountable', 'owner', 'I will', 'sign off', 'responsible'],
+            message: 'Name who stays accountable for the final briefing.',
+          },
+        ],
+      }),
+    [judgmentResponse],
+  );
   const rubricResults = useMemo(
     () =>
       rubricChecks.map((check) => ({
@@ -317,24 +345,19 @@ export default function WorkflowBuilderLab() {
     );
 
   const ready =
-    selectedFailures.length >= 4 &&
-    selectedHelpfulStages >= 5 &&
-    selectedRiskyStages === 0 &&
+    selectedFailures.length >= 2 &&
+    selectedStages.length >= 5 &&
     completedPlanFields === usePlanFields.length &&
     promptQuality.passed &&
-    effectiveRubricScore >= 4;
+    judgmentQuality.passed;
   const completionRequirements = [
     {
-      label: 'Identify at least four one-shot workflow failure modes',
-      met: selectedFailures.length >= 4,
+      label: 'Identify at least two one-shot workflow failure modes',
+      met: selectedFailures.length >= 2,
     },
     {
-      label: 'Include at least five useful workflow stages',
-      met: selectedHelpfulStages >= 5,
-    },
-    {
-      label: 'Remove all unsafe tempting stages',
-      met: selectedRiskyStages === 0,
+      label: 'Choose at least five workflow stages for critique and refinement',
+      met: selectedStages.length >= 5,
     },
     {
       label: 'Complete every AI Use Plan field',
@@ -345,8 +368,8 @@ export default function WorkflowBuilderLab() {
       met: promptQuality.passed,
     },
     {
-      label: 'Meet at least four local self-checks, with one self-attested override allowed',
-      met: effectiveRubricScore >= 4,
+      label: 'Complete the speed-vs-verification Judgment Challenge',
+      met: judgmentQuality.passed,
     },
   ];
 
@@ -356,6 +379,9 @@ export default function WorkflowBuilderLab() {
       setSelectedFailures(Array.isArray(draft.selectedFailures) ? draft.selectedFailures : []);
       setSelectedStages(Array.isArray(draft.selectedStages) ? draft.selectedStages : []);
       setUsePlan(draft.usePlan && typeof draft.usePlan === 'object' ? draft.usePlan : {});
+      setJudgmentResponse(
+        typeof draft.judgmentResponse === 'string' ? draft.judgmentResponse : '',
+      );
       setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
     }
     setDraftLoaded(true);
@@ -369,7 +395,8 @@ export default function WorkflowBuilderLab() {
     const hasWork =
       selectedFailures.length > 0 ||
       selectedStages.length > 0 ||
-      Object.values(usePlan).some((value) => value?.trim());
+      Object.values(usePlan).some((value) => value?.trim()) ||
+      Boolean(judgmentResponse.trim());
 
     if (!hasWork) {
       return;
@@ -379,9 +406,10 @@ export default function WorkflowBuilderLab() {
       selectedFailures,
       selectedStages,
       usePlan,
+      judgmentResponse,
     });
     setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
-  }, [draftLoaded, selectedFailures, selectedStages, usePlan]);
+  }, [draftLoaded, selectedFailures, selectedStages, usePlan, judgmentResponse]);
 
   function toggleFailure(id) {
     setSelectedFailures((current) => toggleValue(current, id));
@@ -403,6 +431,7 @@ export default function WorkflowBuilderLab() {
     setShowDebrief(true);
     saveArtifact('usePlan', {
       fields: usePlan,
+      judgmentResponse,
       selectedStages,
       selectedFailures,
     });
@@ -430,12 +459,13 @@ export default function WorkflowBuilderLab() {
       <div className="workflow-lab__scenario">
         <h3>Scenario</h3>
         <p>
-          You need a briefing note for tomorrow's steering committee meeting.
-          The tempting prompt is short, fast, and risky:
+          You need a briefing note for tomorrow's regulated-office decision on
+          a public-records platform renewal. The tempting prompt is short, fast,
+          and risky:
         </p>
         <blockquote>
-          Write a confident one-page briefing note from these notes for tomorrow's
-          executive readout.
+          Write a confident one-page renewal recommendation from these notes for
+          tomorrow's deputy director briefing.
         </blockquote>
         <h4>Messy notes</h4>
         <ul>
@@ -520,6 +550,23 @@ export default function WorkflowBuilderLab() {
           {textQualitySummary(promptQuality)}
         </small>
       </div>
+
+      <label className="workflow-lab__prompt workflow-lab__judgment">
+        <span>Judgment Challenge: speed versus verification</span>
+        <small className="workflow-lab__field-help">
+          The briefing is due tomorrow. What will you draft quickly, what will
+          you refuse to shortcut, and who remains accountable?
+        </small>
+        <textarea
+          onChange={(event) => setJudgmentResponse(event.target.value)}
+          placeholder="I would use AI quickly to organize sanitized notes, but I would verify complaint volume, deadlines, accessibility claims, and approved wording before any recommendation because..."
+          rows="5"
+          value={judgmentResponse}
+        />
+        <small className={judgmentQuality.passed ? 'is-passed' : ''}>
+          {textQualitySummary(judgmentQuality)}
+        </small>
+      </label>
 
       <div className="workflow-lab__self-check">
         <div className="workflow-lab__self-check-header">

@@ -120,7 +120,10 @@
   align-items: center;
   justify-content: center;
   gap: 7px;
+  line-height: 1.25;
   padding: 8px;
+  text-align: center;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 

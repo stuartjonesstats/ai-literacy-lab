@@ -20,12 +20,13 @@ define what meaningful review requires.
 
 Human-in-the-loop challenge: learners evaluate a workflow where a human
 technically reviews AI output but lacks the time, expertise, or authority to
-catch important problems.
+inspect records, challenge missing evidence, or catch important problems.
 
 ## Productive Struggle
 
-The scenario should expose the difference between review as a checkbox and
-review as a real control.
+The scenario should make pattern matching unreliable. Learners must open source
+evidence, notice omitted records, and decide when the "human review" label is
+not enough because authority, time, or evidence is missing.
 
 ## Debrief
 
@@ -41,6 +42,8 @@ Strong review design should define:
 - when the case must be escalated
 - how disagreement with AI is handled
 - what gets documented
+- what happens when evidence systems, manager pressure, or deadlines make
+  review non-meaningful
 
 ## Redesign Task
 
@@ -54,15 +57,18 @@ Possible stronger workflow:
 3. Human compares the appeal, policy, and evidence.
 4. AI-generated language is used only after the decision is made.
 5. Borderline or exception cases are escalated.
-6. The final response documents the human rationale.
+6. Missing evidence, missing authority, or pressure to approve becomes a stop
+   condition.
+7. The final response documents the human rationale.
 ```
 
 ## Self-Check Rubric
 
 - Emerging: says "a human should review it" without defining review.
-- Developing: identifies missing evidence or time pressure.
+- Developing: identifies missing evidence, weak records, or time pressure.
 - Proficient: gives the reviewer authority, evidence, and escalation criteria.
-- Advanced: separates AI drafting from accountable decision-making.
+- Advanced: separates AI drafting from accountable decision-making and defines
+  when review must pause.
 
 ## Transfer Principle
 
