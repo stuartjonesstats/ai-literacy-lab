@@ -78,8 +78,16 @@ const rubricChecks = [
     id: 'sample-caution',
     label: 'Names the evidence limit',
     test: (text) =>
-      includesAny(text, ['small sample', 'limited sample', 'sample is limited', 'eight', '8']) &&
-      includesAny(text, ['limited', 'not enough', 'cannot', 'too small', 'caution']),
+      includesAny(text, [
+        'small sample',
+        'limited sample',
+        'sample is limited',
+        'only these notes',
+        'few responses',
+        'eight',
+        '8',
+      ]) &&
+      includesAny(text, ['limited', 'not enough', 'cannot', 'can’t', 'too small', 'caution']),
     why: 'A safer rewrite should not treat eight notes as enough to rank causes confidently.',
   },
   {
@@ -119,10 +127,13 @@ const rubricChecks = [
         'review',
         'larger set',
         'more data',
+        'additional data',
+        'collect',
         'code themes',
         'analyze',
         'compare',
         'verify',
+        'validate',
       ]),
     why: 'A strong rewrite points to what evidence would be needed before acting.',
   },
@@ -182,6 +193,13 @@ export default function ConfidenceTrap() {
   const rubricScore = rubricResults.filter((check) => check.passed).length;
   const selfMarkedScore = rubricResults.filter((check) => selfMarked[check.id])
     .length;
+  const effectiveRubricScore =
+    rubricScore +
+    Math.min(
+      rubricResults.filter((check) => !check.passed && selfMarked[check.id])
+        .length,
+      1,
+    );
   const rewriteQuality = useMemo(
     () =>
       analyzeTextQuality(rewrite, {
@@ -216,7 +234,7 @@ export default function ConfidenceTrap() {
     completedClaims === claims.length &&
     correctCount >= 3 &&
     rewriteQuality.passed &&
-    rubricScore >= 3;
+    effectiveRubricScore >= 3;
   const completionRequirements = [
     {
       label: 'Choose a first move before seeing the evidence',
@@ -243,8 +261,8 @@ export default function ConfidenceTrap() {
       met: rewriteQuality.passed,
     },
     {
-      label: 'Meet at least three local self-checks',
-      met: rubricScore >= 3,
+      label: 'Meet at least three local self-checks, with one self-attested override allowed',
+      met: effectiveRubricScore >= 3,
     },
   ];
 

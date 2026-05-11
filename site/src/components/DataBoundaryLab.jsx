@@ -133,14 +133,20 @@ const rubricChecks = [
     test: (packet) =>
       countMatches(packet, [
         'login',
+        'account',
         'billing',
+        'payment',
         'accessibility',
+        'screen reader',
         'upload',
+        'file',
         'spreadsheet',
+        'document',
         'visible',
         'privacy',
         'information',
-      ]) >= 4,
+        'personal',
+      ]) >= 3,
     why: 'Minimization should not erase the business purpose of the task.',
   },
   {
@@ -161,8 +167,15 @@ const rubricChecks = [
     id: 'limits-inference',
     label: 'Tells AI not to infer sensitive facts',
     test: (packet, prompt) =>
-      includesAny(prompt, ['do not infer', 'avoid inferring', 'do not guess']) &&
-      includesAny(prompt, ['identity', 'legal', 'medical', 'financial', 'account']),
+      includesAny(prompt, [
+        'do not infer',
+        'avoid inferring',
+        'do not guess',
+        "don't assume",
+        'only use provided',
+        'provided information',
+      ]) &&
+      includesAny(prompt, ['identity', 'legal', 'medical', 'financial', 'account', 'sensitive', 'personal']),
     why: 'A safer prompt sets boundaries on what the model should not infer.',
   },
   {
@@ -175,6 +188,8 @@ const rubricChecks = [
         'guidance',
         'allowed',
         'review',
+        'manager',
+        'support',
       ]),
     why: 'The learner should not assume every tool is approved for every data exposure.',
   },
@@ -244,6 +259,13 @@ export default function DataBoundaryLab() {
   const rubricScore = rubricResults.filter((check) => check.passed).length;
   const selfMarkedScore = rubricResults.filter((check) => selfMarked[check.id])
     .length;
+  const effectiveRubricScore =
+    rubricScore +
+    Math.min(
+      rubricResults.filter((check) => !check.passed && selfMarked[check.id])
+        .length,
+      1,
+    );
   const packetQuality = useMemo(
     () =>
       analyzeTextQuality(sanitizedPacket, {
@@ -300,7 +322,7 @@ export default function DataBoundaryLab() {
     criticalDataPassed &&
     packetQuality.passed &&
     promptQuality.passed &&
-    rubricScore >= 4;
+    effectiveRubricScore >= 4;
   const completionRequirements = [
     {
       label: 'Choose a handling action for every message',
@@ -323,8 +345,8 @@ export default function DataBoundaryLab() {
       met: promptQuality.passed,
     },
     {
-      label: 'Meet at least four local self-checks',
-      met: rubricScore >= 4,
+      label: 'Meet at least four local self-checks, with one self-attested override allowed',
+      met: effectiveRubricScore >= 4,
     },
   ];
 

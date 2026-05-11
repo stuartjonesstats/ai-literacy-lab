@@ -154,8 +154,26 @@ const rubricChecks = [
     label: 'Documents uncertainty in the review note',
     test: ({ note }) =>
       note.trim().length > 70 &&
-      includesAny(note, ['evidence', 'unclear', 'missing', 'verify', 'review']) &&
-      includesAny(note, ['next step', 'escalate', 'revise', 'request', 'check']),
+      includesAny(note, [
+        'evidence',
+        'source',
+        'record',
+        'unclear',
+        'missing',
+        'verify',
+        'confirm',
+        'review',
+      ]) &&
+      includesAny(note, [
+        'next step',
+        'escalate',
+        'revise',
+        'request',
+        'check',
+        'send to',
+        'ask',
+        'manager',
+      ]),
     why: 'A strong review note explains what is known, what is missing, and what should happen next.',
   },
 ];
@@ -213,6 +231,13 @@ export default function ReviewLoopLab() {
   )?.passed;
   const selfMarkedScore = rubricResults.filter((check) => selfMarked[check.id])
     .length;
+  const effectiveRubricScore =
+    rubricScore +
+    Math.min(
+      rubricResults.filter((check) => !check.passed && selfMarked[check.id])
+        .length,
+      1,
+    );
   const noteQuality = useMemo(
     () =>
       analyzeTextQuality(note, {
@@ -241,7 +266,7 @@ export default function ReviewLoopLab() {
     doesNotRubberStamp &&
     noticesAuthorityLimits &&
     noteQuality.passed &&
-    rubricScore >= 3;
+    effectiveRubricScore >= 3;
   const completionRequirements = [
     {
       label: 'Choose an action and authority check for every case',
@@ -260,8 +285,8 @@ export default function ReviewLoopLab() {
       met: noteQuality.passed,
     },
     {
-      label: 'Meet at least three local self-checks',
-      met: rubricScore >= 3,
+      label: 'Meet at least three local self-checks, with one self-attested override allowed',
+      met: effectiveRubricScore >= 3,
     },
   ];
 

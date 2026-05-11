@@ -125,29 +125,66 @@ const rubricChecks = [
     id: 'data',
     label: 'Includes data minimization',
     test: ({ planText }) =>
-      includesAny(planText, ['sanitized', 'remove', 'redact', 'abstract', 'sensitive', 'names']),
+      includesAny(planText, [
+        'sanitized',
+        'de-identified',
+        'remove',
+        'redact',
+        'abstract',
+        'minimize',
+        'confidential',
+        'sensitive',
+        'names',
+      ]),
     why: 'Everyday use still needs boundaries around what information is exposed.',
   },
   {
     id: 'no-new-facts',
     label: 'Constrains AI from adding unsupported facts',
     test: ({ planText }) =>
-      includesAny(planText, ['do not add', 'only the provided', 'supplied notes', 'do not infer', 'do not invent']),
+      includesAny(planText, [
+        'do not add',
+        'only the provided',
+        'supplied notes',
+        'source notes',
+        'do not infer',
+        'do not invent',
+        "don't assume",
+        'no new facts',
+      ]),
     why: 'A staged workflow should prevent fluent invention from entering the final work.',
   },
   {
     id: 'open-questions',
     label: 'Separates open questions from conclusions',
     test: ({ planText }) =>
-      includesAny(planText, ['open questions', 'unknown', 'unclear', 'assumptions', 'needs verification']),
+      includesAny(planText, [
+        'open questions',
+        'unknown',
+        'unclear',
+        'unresolved',
+        'assumptions',
+        'needs verification',
+        'needs confirmation',
+      ]),
     why: 'A useful briefing makes uncertainty visible instead of hiding it in polished prose.',
   },
   {
     id: 'verification',
     label: 'Adds verification and human ownership',
     test: ({ planText }) =>
-      includesAny(planText, ['verify', 'check', 'review']) &&
-      includesAny(planText, ['I will', 'human', 'final', 'own', 'revise', 'owner']),
+      includesAny(planText, ['verify', 'check', 'review', 'confirm', 'compare']) &&
+      includesAny(planText, [
+        'I will',
+        'human',
+        'final',
+        'own',
+        'accountable',
+        'responsible',
+        'sign off',
+        'revise',
+        'owner',
+      ]),
     why: 'The final work remains human-owned. AI can assist, but it should not bypass review.',
   },
 ];
@@ -271,6 +308,13 @@ export default function WorkflowBuilderLab() {
   const rubricScore = rubricResults.filter((check) => check.passed).length;
   const selfMarkedScore = rubricResults.filter((check) => selfMarked[check.id])
     .length;
+  const effectiveRubricScore =
+    rubricScore +
+    Math.min(
+      rubricResults.filter((check) => !check.passed && selfMarked[check.id])
+        .length,
+      1,
+    );
 
   const ready =
     selectedFailures.length >= 4 &&
@@ -278,7 +322,7 @@ export default function WorkflowBuilderLab() {
     selectedRiskyStages === 0 &&
     completedPlanFields === usePlanFields.length &&
     promptQuality.passed &&
-    rubricScore >= 4;
+    effectiveRubricScore >= 4;
   const completionRequirements = [
     {
       label: 'Identify at least four one-shot workflow failure modes',
@@ -301,8 +345,8 @@ export default function WorkflowBuilderLab() {
       met: promptQuality.passed,
     },
     {
-      label: 'Meet at least four local self-checks',
-      met: rubricScore >= 4,
+      label: 'Meet at least four local self-checks, with one self-attested override allowed',
+      met: effectiveRubricScore >= 4,
     },
   ];
 

@@ -276,11 +276,18 @@ export default function DecisionSort({ requiresReflection }) {
   const rubricScore = rubricResults.filter((check) => check.passed).length;
   const selfMarkedScore = rubricResults.filter((check) => selfMarked[check.id])
     .length;
+  const effectiveRubricScore =
+    rubricScore +
+    Math.min(
+      rubricResults.filter((check) => !check.passed && selfMarked[check.id])
+        .length,
+      1,
+    );
   const initialReady = initialCompleted === tasks.length;
   const finalReady =
     revisedCompleted === tasks.length &&
     fitScore >= 4 &&
-    rubricScore >= 3 &&
+    effectiveRubricScore >= 3 &&
     reflectionQuality.passed;
   const finalRequirements = [
     {
@@ -292,8 +299,8 @@ export default function DecisionSort({ requiresReflection }) {
       met: fitScore >= 4,
     },
     {
-      label: 'Meet at least three local self-checks',
-      met: rubricScore >= 3,
+      label: 'Meet at least three local self-checks, with one self-attested override allowed',
+      met: effectiveRubricScore >= 3,
     },
     {
       label: 'Write a substantive explanation of the context shift',

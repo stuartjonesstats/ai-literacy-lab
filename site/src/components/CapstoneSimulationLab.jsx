@@ -334,6 +334,16 @@ export default function CapstoneSimulationLab() {
   const reviewPassed = rubricResults.find((check) => check.id === 'review-loop')?.passed;
   const selfMarkedScore = rubricResults.filter((check) => selfMarked[check.id])
     .length;
+  const effectiveRubricScore =
+    rubricScore +
+    Math.min(
+      rubricResults.filter((check) => !check.passed && selfMarked[check.id])
+        .length,
+      2,
+    );
+  const criticalChecksPassed =
+    [boundedUsePassed, evidencePassed, dataPassed, reviewPassed].filter(Boolean)
+      .length >= 3;
   const memoQuality = useMemo(
     () =>
       analyzeTextQuality(memoText, {
@@ -375,12 +385,9 @@ export default function CapstoneSimulationLab() {
   const ready =
     interactionComplete &&
     completedMemoFields === decisionFields.length &&
-    boundedUsePassed &&
-    evidencePassed &&
-    dataPassed &&
-    reviewPassed &&
+    criticalChecksPassed &&
     memoQuality.passed &&
-    rubricScore >= 5;
+    effectiveRubricScore >= 5;
   const completionRequirements = [
     {
       label: 'Complete all six interaction sections',
@@ -395,12 +402,12 @@ export default function CapstoneSimulationLab() {
       met: memoQuality.passed,
     },
     {
-      label: 'Pass the critical capability, evidence, data, and review checks',
-      met: Boolean(boundedUsePassed && evidencePassed && dataPassed && reviewPassed),
+      label: 'Pass at least three of the capability, evidence, data, and review checks',
+      met: criticalChecksPassed,
     },
     {
-      label: 'Meet at least five capstone checks',
-      met: rubricScore >= 5,
+      label: 'Meet at least five capstone checks, with up to two self-attested overrides allowed',
+      met: effectiveRubricScore >= 5,
     },
   ];
 

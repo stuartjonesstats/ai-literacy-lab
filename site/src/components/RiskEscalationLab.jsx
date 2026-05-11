@@ -233,6 +233,13 @@ export default function RiskEscalationLab() {
   const rubricScore = rubricResults.filter((check) => check.passed).length;
   const selfMarkedScore = rubricResults.filter((check) => selfMarked[check.id])
     .length;
+  const effectiveRubricScore =
+    rubricScore +
+    Math.min(
+      rubricResults.filter((check) => !check.passed && selfMarked[check.id])
+        .length,
+      1,
+    );
   const noteQuality = useMemo(
     () =>
       analyzeTextQuality(note, {
@@ -261,7 +268,7 @@ export default function RiskEscalationLab() {
     revisedScore >= 4 &&
     dimensionScore >= 4 &&
     noteQuality.passed &&
-    rubricScore >= 3;
+    effectiveRubricScore >= 3;
   const completionRequirements = [
     {
       label: 'Classify all cases after the new context',
@@ -280,8 +287,8 @@ export default function RiskEscalationLab() {
       met: noteQuality.passed,
     },
     {
-      label: 'Meet at least three local self-checks',
-      met: rubricScore >= 3,
+      label: 'Meet at least three local self-checks, with one self-attested override allowed',
+      met: effectiveRubricScore >= 3,
     },
   ];
 

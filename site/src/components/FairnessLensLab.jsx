@@ -171,6 +171,13 @@ export default function FairnessLensLab() {
   const rubricScore = rubricResults.filter((check) => check.passed).length;
   const selfMarkedScore = rubricResults.filter((check) => selfMarked[check.id])
     .length;
+  const effectiveRubricScore =
+    rubricScore +
+    Math.min(
+      rubricResults.filter((check) => !check.passed && selfMarked[check.id])
+        .length,
+      1,
+    );
   const rewriteQuality = useMemo(
     () =>
       analyzeTextQuality(rewrite, {
@@ -201,7 +208,7 @@ export default function FairnessLensLab() {
     concernComplete &&
     concernScore >= 4 &&
     rewriteQuality.passed &&
-    rubricScore >= 3;
+    effectiveRubricScore >= 3;
   const completionRequirements = [
     {
       label: 'Make an initial decision',
@@ -228,8 +235,8 @@ export default function FairnessLensLab() {
       met: rewriteQuality.passed,
     },
     {
-      label: 'Meet at least three local self-checks',
-      met: rubricScore >= 3,
+      label: 'Meet at least three local self-checks, with one self-attested override allowed',
+      met: effectiveRubricScore >= 3,
     },
   ];
 
