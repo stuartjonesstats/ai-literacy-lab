@@ -1,0 +1,82 @@
+---
+title: Human Accountability and Review
+order: 5
+durableQuestion: Who is responsible when AI contributes to work?
+status: active
+summary: Learners distinguish AI assistance from delegated responsibility and define meaningful human review.
+estimatedMinutes: 20
+---
+
+import ReviewLoopLab from '../../components/ReviewLoopLab.jsx';
+
+## Learning Goal
+
+Distinguish between AI assistance and accountable human decision-making, and
+define what meaningful review requires.
+
+<ReviewLoopLab client:load />
+
+## Signature Activity
+
+Human-in-the-loop challenge: learners evaluate a workflow where a human
+technically reviews AI output but lacks the time, expertise, or authority to
+catch important problems.
+
+## Productive Struggle
+
+The scenario should expose the difference between review as a checkbox and
+review as a real control.
+
+## Debrief
+
+"Human in the loop" is not automatically meaningful. Review is a control only
+when the reviewer has enough time, context, evidence, authority, and incentive
+to disagree.
+
+Strong review design should define:
+
+- what evidence the reviewer sees
+- what claims must be checked
+- what decision authority the reviewer has
+- when the case must be escalated
+- how disagreement with AI is handled
+- what gets documented
+
+## Redesign Task
+
+Redesign the workflow so AI assists without owning the decision.
+
+Possible stronger workflow:
+
+```text
+1. Human identifies the decision question and relevant policy.
+2. AI drafts a plain-language summary or checklist, not the final decision.
+3. Human compares the appeal, policy, and evidence.
+4. AI-generated language is used only after the decision is made.
+5. Borderline or exception cases are escalated.
+6. The final response documents the human rationale.
+```
+
+## Self-Check Rubric
+
+- Emerging: says "a human should review it" without defining review.
+- Developing: identifies missing evidence or time pressure.
+- Proficient: gives the reviewer authority, evidence, and escalation criteria.
+- Advanced: separates AI drafting from accountable decision-making.
+
+## Transfer Principle
+
+AI can assist work, but it cannot own accountability. Human review must be
+capable, informed, and consequential.
+
+## Grounding
+
+This module supports governance habits around human oversight, documented
+review, and accountable ownership.
+
+- [NIST AI RMF](https://www.nist.gov/itl/ai-risk-management-framework)
+- [ISO/IEC 42001](https://www.iso.org/standard/42001)
+
+Source note: these references support governance and accountable-review habits.
+They do not establish that a particular human review process is legally
+sufficient or authorized for a specific organization.

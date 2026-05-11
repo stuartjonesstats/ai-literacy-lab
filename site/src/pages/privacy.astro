@@ -1,0 +1,59 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Privacy | AI Literacy Lab">
+  <article class="prose">
+    <p class="eyebrow">Privacy</p>
+    <h1>No-login, local-first learning.</h1>
+    <p>
+      The public AI Literacy Lab site is designed to work without learner
+      accounts, analytics, a database, or hidden submission of written
+      responses.
+    </p>
+
+    <h2>What stays in the browser</h2>
+    <ul>
+      <li>Module progress.</li>
+      <li>Pre-reflection and post-reflection text.</li>
+      <li>The locally locked name for the learning record.</li>
+      <li>Completion timestamps used by the browser-based learning record.</li>
+    </ul>
+
+    <h2>What is not submitted</h2>
+    <ul>
+      <li>Learner rewrites, reflections, and scenario choices are not sent to a server by the public site.</li>
+      <li>The public site does not provide a facilitator dashboard.</li>
+      <li>The public site does not verify identity or proctor completion.</li>
+    </ul>
+
+    <h2>Storage limits</h2>
+    <p>
+      Progress is normally saved with browser local storage. It may be lost if a
+      learner resets progress, clears site data, uses private browsing, switches
+      browser or device, or accesses the lab from a different domain. If local
+      storage is blocked, the site falls back to less persistent browser storage
+      or session memory and warns the learner where possible.
+    </p>
+
+    <h2>What not to write</h2>
+    <p>
+      Do not enter real customer records, employee records, medical details,
+      account numbers, credentials, confidential incidents, or sensitive
+      workplace allegations into reflections or practice responses. Use general
+      descriptions or synthetic examples.
+    </p>
+    <p>
+      If an organization asks learners to submit a learning record, it should
+      explain who receives it, how long it is retained, whether reflections are
+      required, and how employees can avoid including sensitive information.
+    </p>
+
+    <h2>Organizational use</h2>
+    <p>
+      Organizations that need reviewable completion should use their existing
+      learning or HR systems to collect evidence intentionally. They should not
+      silently modify the public site to capture learner writing.
+    </p>
+  </article>
+</BaseLayout>

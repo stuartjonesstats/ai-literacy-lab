@@ -1,0 +1,135 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="About | AI Literacy Lab">
+  <article class="prose">
+    <p class="eyebrow">Project Thesis</p>
+    <h1>AI literacy is the ability to make sound judgments about AI use in context.</h1>
+    <p>
+      AI Literacy Lab is a free, open-source training tool for office workers
+      who need to use AI responsibly in everyday work, including regulated
+      settings where data, documentation, human review, fairness, and escalation
+      are part of the job.
+    </p>
+    <p>
+      The lab is built on a simple premise: AI literacy should change behavior.
+      A learner should leave better able to decide when AI is useful, when it is
+      fragile, what must be checked, what should not be shared, who remains
+      accountable, and when a use should be escalated before it proceeds.
+    </p>
+
+    <h2>Why This Exists</h2>
+    <p>
+      Many AI trainings treat literacy as awareness: read a policy summary,
+      recognize a few terms, answer a few recall questions, and receive a
+      completion record. That may document exposure, but it does not reliably
+      build judgment.
+    </p>
+    <p>
+      This project treats AI literacy as practice. Learners make decisions in
+      realistic scenarios, encounter complications, revise their reasoning, and
+      compare their choices against transparent checks. The goal is not to make
+      people pro-AI or anti-AI. The goal is to make them more careful, capable,
+      and accountable when AI enters ordinary work.
+    </p>
+
+    <h2>What The Lab Trains</h2>
+    <ul>
+      <li>Judging when AI is useful, fragile, or inappropriate.</li>
+      <li>Matching confidence to evidence instead of fluent presentation.</li>
+      <li>Protecting confidential, personal, and business-sensitive information.</li>
+      <li>Recognizing proxy harms, missing perspectives, and uneven burdens.</li>
+      <li>Separating AI assistance from accountable human decision-making.</li>
+      <li>Designing workflows with constraints, verification, and review.</li>
+      <li>Escalating higher-risk uses before ordinary review fails.</li>
+    </ul>
+
+    <h2>Design Principles</h2>
+    <ul>
+      <li>Scenario before vocabulary.</li>
+      <li>Commitment before reveal.</li>
+      <li>Productive struggle without humiliation.</li>
+      <li>Durable concepts over tool-specific instructions.</li>
+      <li>Generic governance habits that organizations can adapt.</li>
+      <li>Reflection and reasoning over recall alone.</li>
+    </ul>
+
+    <h2>Scope</h2>
+    <p>
+      The lab is not legal advice, a proctored credential, an
+      identity-verified certificate, or a replacement for an organization's own
+      policies. It is a structured practice environment for building the habits
+      that make responsible AI policies more likely to work in real behavior.
+    </p>
+
+    <h2>For Organizations</h2>
+    <p>
+      Teams can use the lab as a practice layer for AI literacy, but should pair
+      it with local guidance: approved tools, data classification rules,
+      escalation contacts, accessibility review, and role-specific obligations.
+      The browser-based learning record documents local practice; it does not
+      verify identity or prove compliance.
+    </p>
+    <p>
+      See <a href="/for-teams/">For Teams</a>, <a href="/facilitators/">Facilitators</a>,
+      and <a href="/privacy/">Privacy</a> for adoption guidance.
+    </p>
+
+    <h2>Standards And Research</h2>
+    <p>
+      The curriculum is informed by durable ideas from AI risk management,
+      privacy risk management, and learning science. It draws especially on the
+      NIST AI Risk Management Framework, the NIST Privacy Framework, and
+      research on scenario-based learning, retrieval practice, and productive
+      failure.
+    </p>
+    <p>
+      See the <a href="/resources/">Resources</a> page for the working source
+      list.
+    </p>
+
+    <h2 id="accessibility-testing">Accessibility And Testing</h2>
+    <p>
+      AI Literacy Lab is built with semantic page structure, a skip link,
+      visible focus styles, labeled controls, and local browser feedback. The
+      public site should be usable without learner accounts and without
+      submitting learner writing, but it is not a substitute for an
+      organization's own accessibility acceptance testing.
+    </p>
+    <ul>
+      <li>
+        Keyboard: core pages and module controls are intended to work by
+        keyboard, but complex lab interactions still need manual regression
+        checks after design or interaction changes.
+      </li>
+      <li>
+        Screen readers: content uses headings, labels, legends, and status text
+        where appropriate, but the project has not had a formal third-party
+        screen reader audit.
+      </li>
+      <li>
+        Browsers: testing is aimed at current Chrome, Edge, Firefox, and Safari.
+        Older browsers, disabled JavaScript, restrictive extensions, or embedded
+        webviews may reduce interactive lab behavior.
+      </li>
+      <li>
+        Local storage: progress and learning-record data depend on browser
+        storage. Private browsing, clearing site data, blocked storage, device
+        changes, or domain changes can remove or isolate saved work.
+      </li>
+    </ul>
+    <p>
+      Organizations adopting the lab should run their own accessibility,
+      assistive-technology, browser, storage, and policy checks in the
+      environment where learners will use it.
+    </p>
+
+    <h2>Open Delivery</h2>
+    <p>
+      The site is built with Astro, MDX, and React islands. The curriculum
+      remains readable as open-source content while interactive lab activities
+      provide the practice moments that matter.
+    </p>
+  </article>
+</BaseLayout>

@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CourseSyllabus from '../../components/CourseSyllabus.jsx';
+
+const modules = (await getCollection('modules')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const syllabusModules = modules.map((module) => ({
+  id: module.id,
+  order: module.data.order,
+  title: module.data.title,
+  summary: module.data.summary,
+  durableQuestion: module.data.durableQuestion,
+  status: module.data.status,
+  estimatedMinutes: module.data.estimatedMinutes,
+}));
+---
+
+<BaseLayout title="Modules | AI Literacy Lab">
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Modules</p>
+      <h1>Seven modules plus a capstone simulation.</h1>
+      <p class="lede">
+        The sequence moves from basic capability judgment to practical
+        governance behavior.
+      </p>
+      <CourseSyllabus client:load modules={syllabusModules} />
+    </div>
+  </section>
+</BaseLayout>

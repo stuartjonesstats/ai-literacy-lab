@@ -1,0 +1,57 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'An open-source curriculum for building practical AI judgment.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="site-header">
+      <div class="container nav">
+        <a class="brand" href="/">AI Literacy Lab</a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="/modules/">Modules</a>
+          <a href="/job-aid/">Job Aid</a>
+          <a href="/for-teams/">For Teams</a>
+          <a href="/resources/">Resources</a>
+          <a href="/privacy/">Privacy</a>
+          <a href="/completion/">Learning Record</a>
+          <a href="/about/">About</a>
+        </nav>
+      </div>
+    </header>
+    <main id="main-content">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <p>Open curriculum for building practical AI judgment.</p>
+        <nav class="footer-links" aria-label="Project links">
+          <a href="/privacy/">Privacy</a>
+          <a href="/job-aid/">Job Aid</a>
+          <a href="/for-teams/">For Teams</a>
+          <a href="/resources/">Sources</a>
+          <a href="/facilitators/">Facilitators</a>
+          <a href="https://github.com/stuartjonesstats/ai-literacy-lab">GitHub</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

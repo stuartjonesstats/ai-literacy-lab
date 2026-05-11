@@ -1,0 +1,304 @@
+.confidence-trap {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 30px 0;
+}
+
+.confidence-trap__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.confidence-trap__eyebrow {
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.confidence-trap__progress {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  min-width: 56px;
+  padding: 4px 10px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.confidence-trap__scenario,
+.confidence-trap__draft,
+.confidence-trap__evidence,
+.confidence-trap__claim,
+.confidence-trap__debrief {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  margin: 12px 0;
+}
+
+.confidence-trap__draft {
+  background: #f8fbf9;
+}
+
+.confidence-trap__draft p {
+  font-size: 1.02rem;
+}
+
+.confidence-trap__evidence ol {
+  margin: 0;
+  padding-left: 24px;
+}
+
+.confidence-trap__fieldset {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  margin: 16px 0;
+}
+
+.confidence-trap__fieldset legend {
+  font-weight: 800;
+  padding: 0 6px;
+}
+
+.confidence-trap__choice-grid,
+.confidence-trap__buttons {
+  display: grid;
+  gap: 8px;
+}
+
+.confidence-trap__choice-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.confidence-trap__buttons {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.confidence-trap button {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 6px;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.confidence-trap button:hover,
+.confidence-trap button.is-selected {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  background: #eef8f4;
+}
+
+.confidence-trap__slider {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 1fr minmax(160px, 240px) 44px;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  margin: 16px 0;
+}
+
+.confidence-trap__rewrite {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  margin: 16px 0;
+}
+
+.confidence-trap__rewrite span {
+  font-weight: 800;
+}
+
+.confidence-trap__rewrite textarea {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  min-height: 130px;
+  padding: 10px;
+  resize: vertical;
+  width: 100%;
+}
+
+.confidence-trap__rewrite textarea:focus {
+  border-color: var(--focus);
+  outline: 2px solid rgba(44, 121, 196, 0.18);
+}
+
+.confidence-trap__rewrite small {
+  color: var(--warn);
+  font-weight: 700;
+}
+
+.confidence-trap__rewrite small.is-passed {
+  color: var(--accent-strong);
+}
+
+.confidence-trap__self-check {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  margin: 16px 0;
+  background: #f8fbf9;
+}
+
+.confidence-trap__self-check-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.confidence-trap__self-check-header h3 {
+  margin-bottom: 8px;
+}
+
+.confidence-trap__self-check-header span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  min-width: 52px;
+  padding: 4px 10px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.confidence-trap__self-check ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.confidence-trap__self-check li {
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  padding: 0;
+}
+
+.confidence-trap__self-check li button {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 8px;
+  justify-content: start;
+  min-height: auto;
+  padding: 10px 0;
+  text-align: left;
+  width: 100%;
+}
+
+.confidence-trap__self-check li button:hover {
+  background: transparent;
+  color: var(--ink);
+}
+
+.confidence-trap__self-check li.is-self-marked button {
+  color: var(--accent-strong);
+}
+
+.confidence-trap__self-check li.is-self-marked {
+  background: #eef8f4;
+  margin: 0 -8px;
+  padding: 0 8px;
+}
+
+.confidence-trap__self-mark-count {
+  color: var(--accent-strong);
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.confidence-trap__self-check li svg {
+  margin-top: 3px;
+  color: #9aa59f;
+}
+
+.confidence-trap__self-check li.is-passed {
+  color: var(--ink);
+}
+
+.confidence-trap__self-check li.is-passed svg {
+  color: var(--accent);
+}
+
+.confidence-trap__self-check li strong,
+.confidence-trap__self-check li span {
+  display: block;
+}
+
+.confidence-trap__slider span {
+  font-weight: 800;
+}
+
+.confidence-trap__slider input {
+  width: 100%;
+}
+
+.confidence-trap__claims {
+  margin-top: 20px;
+}
+
+.confidence-trap__reveal {
+  margin-top: 16px;
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #fff !important;
+  font-weight: 800;
+}
+
+.confidence-trap__reveal:disabled {
+  background: #dfe5df !important;
+  border-color: #dfe5df !important;
+  color: var(--muted) !important;
+  cursor: not-allowed;
+}
+
+.confidence-trap__debrief {
+  margin-top: 18px;
+}
+
+.confidence-trap__debrief li {
+  margin-bottom: 10px;
+}
+
+.confidence-trap__principle {
+  border-left: 4px solid var(--accent);
+  padding-left: 14px;
+  color: var(--accent-strong);
+  font-weight: 800;
+}
+
+.confidence-trap__privacy {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  color: var(--muted);
+}
+
+@media (max-width: 760px) {
+  .confidence-trap__choice-grid,
+  .confidence-trap__buttons,
+  .confidence-trap__slider {
+    grid-template-columns: 1fr;
+  }
+}

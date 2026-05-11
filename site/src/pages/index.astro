@@ -1,0 +1,128 @@
+---
+import { BookOpen, GitBranch } from 'lucide-react';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CourseSyllabus from '../components/CourseSyllabus.jsx';
+
+const modules = (await getCollection('modules')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const syllabusModules = modules.map((module) => ({
+  id: module.id,
+  order: module.data.order,
+  title: module.data.title,
+  summary: module.data.summary,
+  durableQuestion: module.data.durableQuestion,
+  status: module.data.status,
+  estimatedMinutes: module.data.estimatedMinutes,
+}));
+---
+
+<BaseLayout title="AI Literacy Lab">
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <p class="eyebrow">Open-source AI literacy curriculum</p>
+        <h1>Build judgment, not just awareness.</h1>
+        <p class="lede">
+          AI Literacy Lab is a free curriculum for helping people make better
+          decisions when AI systems are useful, persuasive, incomplete, risky,
+          or wrong.
+        </p>
+        <div class="actions">
+          <a class="button button.large" href="/modules/01-good-and-bad-at/">
+            <BookOpen size={18} aria-hidden="true" />
+            Start Here
+          </a>
+          <a class="button secondary" href="/about/">
+            <GitBranch size={18} aria-hidden="true" />
+            Project thesis
+          </a>
+        </div>
+      </div>
+      <aside class="panel">
+        <h2>Lab Pattern</h2>
+        <p>
+          The lab uses a repeated practice cycle: learners enter a realistic
+          workplace scenario, commit to a judgment, inspect new evidence or a
+          complication, revise their answer, and compare their reasoning against
+          plain self-checks that run in the browser.
+        </p>
+        <p>
+          This pattern is intentionally uncomfortable. It trains transfer:
+          people practice the behaviors they need on the job, not just the
+          vocabulary they might remember on a quiz.
+        </p>
+        <ol class="lab-pattern-list">
+          <li>Commit before reveal.</li>
+          <li>Revise when context changes.</li>
+          <li>Document the judgment.</li>
+          <li>Escalate when ordinary review is not enough.</li>
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container trust-strip" aria-label="Project trust signals">
+      <span>Open-source</span>
+      <span>No login</span>
+      <span>Local-only learner writing</span>
+      <span>Source-informed</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="source-band">
+        <div>
+          <p class="eyebrow">Standards-aware practice</p>
+          <h2>Informed by risk management, privacy, and learning science.</h2>
+          <p>
+            The lab is designed for general office work, including regulated
+            settings where people need practical habits: classify risk, protect
+            data, verify claims, preserve accountability, and escalate when the
+            use exceeds ordinary review.
+          </p>
+          <p>
+            Self-check prompts run in the browser and do not submit learner
+            writing. They support practice; they do not certify correctness or
+            policy compliance.
+          </p>
+        </div>
+        <ul>
+          <li>
+            <a href="https://www.nist.gov/itl/ai-risk-management-framework">
+              NIST AI RMF
+            </a>
+          </li>
+          <li>
+            <a href="https://www.nist.gov/privacy-framework">
+              NIST Privacy Framework
+            </a>
+          </li>
+          <li>
+            <a href="https://nap.nationalacademies.org/catalog/24783/how-people-learn-ii-learners-contexts-and-cultures">
+              How People Learn II
+            </a>
+          </li>
+          <li>
+            <a href="/resources/">Full resource list</a>
+          </li>
+          <li>
+            <a href="/about/#accessibility-testing">
+              Accessibility and testing statement
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section band">
+    <div class="container">
+      <CourseSyllabus client:load modules={syllabusModules} />
+    </div>
+  </section>
+</BaseLayout>

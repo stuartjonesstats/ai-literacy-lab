@@ -1,0 +1,45 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ModuleGate from '../../components/ModuleGate.jsx';
+
+export async function getStaticPaths() {
+  const modules = (await getCollection('modules')).sort(
+    (a, b) => a.data.order - b.data.order,
+  );
+  const moduleNav = modules.map((module) => ({
+    id: module.id,
+    order: module.data.order,
+    title: module.data.title,
+    summary: module.data.summary,
+    status: module.data.status,
+    estimatedMinutes: module.data.estimatedMinutes,
+  }));
+
+  return modules.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry, moduleNav },
+  }));
+}
+
+const { entry, moduleNav } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<BaseLayout title={`${entry.data.title} | AI Literacy Lab`}>
+  <article class="prose">
+    <p class="eyebrow">Module {entry.data.order}</p>
+    <h1>{entry.data.title}</h1>
+    <p class="lede">{entry.data.durableQuestion}</p>
+    <p class="module-time">Estimated time: {entry.data.estimatedMinutes} minutes</p>
+    <ModuleGate
+      client:load
+      moduleId={entry.id}
+      moduleTitle={entry.data.title}
+      modules={moduleNav}
+    />
+    <div data-module-content={entry.id} hidden={entry.data.order !== 1}>
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

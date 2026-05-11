@@ -1,0 +1,338 @@
+.capstone-lab {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 30px 0;
+}
+
+.capstone-lab__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.capstone-lab__eyebrow {
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.capstone-lab__progress {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  min-width: 56px;
+  padding: 4px 10px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.capstone-lab__draft-status {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  display: inline-flex;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin: 0 0 12px;
+  padding: 5px 10px;
+}
+
+.capstone-lab__scenario,
+.capstone-lab__block,
+.capstone-lab__memo,
+.capstone-lab__self-check,
+.capstone-lab__requirements,
+.capstone-lab__debrief {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  margin: 12px 0;
+}
+
+.capstone-lab__scenario,
+.capstone-lab__requirements,
+.capstone-lab__self-check {
+  background: #f8fbf9;
+}
+
+.capstone-lab__packet,
+.capstone-lab__review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.capstone-lab__packet article,
+.capstone-lab__claims article,
+.capstone-lab__review-grid article {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 12px;
+}
+
+.capstone-lab__packet h4,
+.capstone-lab__claims h4,
+.capstone-lab__review-grid h4 {
+  margin: 0 0 8px;
+}
+
+.capstone-lab fieldset {
+  min-width: 0;
+}
+
+.capstone-lab legend {
+  font-weight: 800;
+  padding: 0 6px;
+}
+
+.capstone-lab__choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.capstone-lab__option-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.capstone-lab__block .capstone-lab__option-row {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.capstone-lab button {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 6px;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.capstone-lab button:hover,
+.capstone-lab button.is-selected {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  background: #eef8f4;
+}
+
+.capstone-lab__claims {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.capstone-lab__memo {
+  display: grid;
+  gap: 10px;
+}
+
+.capstone-lab__memo h3 {
+  margin-bottom: 4px;
+}
+
+.capstone-lab__memo label {
+  display: grid;
+  gap: 6px;
+}
+
+.capstone-lab__memo span {
+  font-weight: 800;
+}
+
+.capstone-lab__memo textarea {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  min-height: 210px;
+  padding: 10px;
+  resize: vertical;
+  width: 100%;
+}
+
+.capstone-lab__memo textarea:focus {
+  border-color: var(--focus);
+  outline: 2px solid rgba(44, 121, 196, 0.18);
+}
+
+.capstone-lab__field-help {
+  color: var(--muted) !important;
+  font-weight: 600 !important;
+}
+
+.capstone-lab__memo small {
+  color: var(--warn);
+  font-weight: 700;
+}
+
+.capstone-lab__memo small.is-passed {
+  color: var(--accent-strong);
+}
+
+.capstone-lab__self-check-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.capstone-lab__self-check-header span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  min-width: 52px;
+  padding: 4px 10px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.capstone-lab__self-check ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.capstone-lab__self-check li {
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  padding: 0;
+}
+
+.capstone-lab__self-check li button {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 8px;
+  justify-content: start;
+  min-height: auto;
+  padding: 10px 0;
+  text-align: left;
+  width: 100%;
+}
+
+.capstone-lab__self-check li button:hover {
+  background: transparent;
+  color: var(--ink);
+}
+
+.capstone-lab__self-check li.is-self-marked {
+  background: #eef8f4;
+  margin: 0 -8px;
+  padding: 0 8px;
+}
+
+.capstone-lab__self-check li.is-self-marked button {
+  color: var(--accent-strong);
+}
+
+.capstone-lab__self-mark-count {
+  color: var(--accent-strong);
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.capstone-lab__self-check li svg {
+  margin-top: 3px;
+  color: #9aa59f;
+}
+
+.capstone-lab__self-check li.is-passed {
+  color: var(--ink);
+}
+
+.capstone-lab__self-check li.is-passed svg {
+  color: var(--accent);
+}
+
+.capstone-lab__self-check li strong,
+.capstone-lab__self-check li span {
+  display: block;
+}
+
+.capstone-lab__requirements ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.capstone-lab__requirements li {
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 8px;
+  padding: 10px 0;
+}
+
+.capstone-lab__requirements li.is-met {
+  color: var(--ink);
+}
+
+.capstone-lab__requirements li svg {
+  color: #9aa59f;
+  margin-top: 3px;
+}
+
+.capstone-lab__requirements li.is-met svg {
+  color: var(--accent);
+}
+
+.capstone-lab__reveal {
+  margin-top: 16px;
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #fff !important;
+  font-weight: 800;
+}
+
+.capstone-lab__reveal:disabled {
+  background: #dfe5df !important;
+  border-color: #dfe5df !important;
+  color: var(--muted) !important;
+  cursor: not-allowed;
+}
+
+.capstone-lab__review-grid article svg {
+  color: var(--accent);
+}
+
+.capstone-lab__principle {
+  border-left: 4px solid var(--accent);
+  padding-left: 14px;
+  color: var(--accent-strong);
+  font-weight: 800;
+}
+
+.capstone-lab__privacy {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  color: var(--muted);
+}
+
+@media (max-width: 860px) {
+  .capstone-lab__packet,
+  .capstone-lab__review-grid,
+  .capstone-lab__choice-grid,
+  .capstone-lab__option-row,
+  .capstone-lab__block .capstone-lab__option-row {
+    grid-template-columns: 1fr;
+  }
+}

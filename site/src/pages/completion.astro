@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CompletionStatement from '../components/CompletionStatement.jsx';
+
+const modules = (await getCollection('modules')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const statementModules = modules.map((module) => ({
+  id: module.id,
+  order: module.data.order,
+  title: module.data.title,
+  summary: module.data.summary,
+  durableQuestion: module.data.durableQuestion,
+  estimatedMinutes: module.data.estimatedMinutes,
+}));
+---
+
+<BaseLayout title="Learning Record | AI Literacy Lab">
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Learning Record</p>
+      <h1>Self-attested learning record</h1>
+      <p class="lede">
+        This page generates a local practice record after the full lab path is
+        complete in this browser. It is self-attested, not proctored, and not a
+        compliance determination.
+      </p>
+      <CompletionStatement client:load modules={statementModules} />
+    </div>
+  </section>
+</BaseLayout>

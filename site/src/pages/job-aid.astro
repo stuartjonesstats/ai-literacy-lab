@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Job Aid | AI Literacy Lab">
+  <section class="section">
+    <div class="container resources-page">
+      <p class="eyebrow">Job Aid</p>
+      <h1>Before using AI at work, run the quick check.</h1>
+      <p class="lede">
+        This is the practical spine of the lab: decide what AI may help with,
+        what data is safe, what must be verified, who owns the final work, and
+        when to stop.
+      </p>
+
+      <div class="resource-grid">
+        <article class="resource-card">
+          <h2>Before Prompting</h2>
+          <ul>
+            <li>Is this an approved tool for this task?</li>
+            <li>What data class is involved?</li>
+            <li>Can names, account details, or confidential facts be removed?</li>
+            <li>Is AI helping draft or organize, rather than decide?</li>
+          </ul>
+        </article>
+
+        <article class="resource-card">
+          <h2>Before Relying</h2>
+          <ul>
+            <li>Which facts, numbers, dates, links, and commitments need checking?</li>
+            <li>What is the source of truth?</li>
+            <li>What claims are unsupported, overstated, or too confident?</li>
+            <li>Who could be affected if this is wrong?</li>
+          </ul>
+        </article>
+
+        <article class="resource-card">
+          <h2>Before Sending</h2>
+          <ul>
+            <li>Who owns the final decision or message?</li>
+            <li>What should be documented?</li>
+            <li>What would trigger escalation?</li>
+            <li>Would this affect pay, hiring, access, complaints, discipline, safety, or rights?</li>
+          </ul>
+        </article>
+      </div>
+
+      <section class="resource-principles" aria-labelledby="stop-conditions">
+        <h2 id="stop-conditions">Stop and ask when</h2>
+        <ul>
+          <li>The tool, data, policy, or review owner is unclear.</li>
+          <li>The work contains confidential, personal, regulated, or business-sensitive information.</li>
+          <li>The output could affect someone’s opportunity, access, money, reputation, or safety.</li>
+          <li>The answer needs current facts that you cannot verify.</li>
+          <li>You are being asked to use AI to rank, deny, approve, discipline, or deprioritize people.</li>
+        </ul>
+      </section>
+    </div>
+  </section>
+</BaseLayout>

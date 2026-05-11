@@ -1,0 +1,10 @@
+.DS_Store
+.playwright-cli/
+
+node_modules/
+dist/
+.astro/
+
+site/node_modules/
+site/dist/
+site/.astro/
