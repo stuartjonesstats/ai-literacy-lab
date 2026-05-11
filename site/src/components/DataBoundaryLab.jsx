@@ -205,8 +205,8 @@ function countMatches(text, terms) {
   return terms.filter((term) => normalized.includes(term)).length;
 }
 
-function sameSet(left, right) {
-  return left.length === right.length && left.every((item) => right.includes(item));
+function includesAll(left, right) {
+  return right.every((item) => left.includes(item));
 }
 
 export default function DataBoundaryLab() {
@@ -242,7 +242,7 @@ export default function DataBoundaryLab() {
   const flagScore = useMemo(
     () =>
       messages.filter((message) =>
-        sameSet(selectedFlags[message.id] || [], message.expectedFlags),
+        includesAll(selectedFlags[message.id] || [], message.expectedFlags),
       ).length,
     [selectedFlags],
   );
@@ -308,13 +308,44 @@ export default function DataBoundaryLab() {
       }),
     [saferPrompt],
   );
-  const criticalDataPassed =
-    selectedActions['case-manager'] === 'guidance' &&
-    selectedActions['login'] === 'redact' &&
-    selectedActions['billing'] === 'abstract' &&
-    selectedActions['budget'] !== 'as-is' &&
-    actionScore >= 4 &&
-    flagScore >= 4;
+  const criticalDataHints = useMemo(() => {
+    const hints = [];
+    const flags = (messageId) => selectedFlags[messageId] || [];
+
+    if (!['redact', 'abstract', 'guidance'].includes(selectedActions.login)) {
+      hints.push('Message 1: do not use the account email as-is.');
+    }
+    if (!flags('login').includes('identifier')) {
+      hints.push('Message 1: flag the email address as a direct identifier.');
+    }
+    if (!['redact', 'abstract', 'guidance'].includes(selectedActions.billing)) {
+      hints.push('Message 2: do not use the invoice detail as-is.');
+    }
+    if (!flags('billing').includes('account')) {
+      hints.push('Message 2: flag the invoice as an account or billing detail.');
+    }
+    if (selectedActions.agency === 'as-is') {
+      hints.push('Message 3: separate the vendor-switching/deadline context from general theme analysis.');
+    }
+    if (!includesAll(flags('agency'), ['business', 'urgency'])) {
+      hints.push('Message 3: flag business-sensitive context and urgency/deadline.');
+    }
+    if (selectedActions.budget === 'as-is') {
+      hints.push('Message 4: do not use the budget-workbook context as-is.');
+    }
+    if (!flags('budget').includes('business')) {
+      hints.push('Message 4: flag the budget workbook as business-sensitive.');
+    }
+    if (selectedActions['case-manager'] !== 'guidance') {
+      hints.push('Message 5: use an approved process first for the case-manager/privacy concern.');
+    }
+    if (!includesAll(flags('case-manager'), ['service', 'privacy'])) {
+      hints.push('Message 5: flag sensitive service context and privacy concern.');
+    }
+
+    return hints;
+  }, [selectedActions, selectedFlags]);
+  const criticalDataPassed = criticalDataHints.length === 0;
 
   const ready =
     completedActions === messages.length &&
@@ -333,7 +364,7 @@ export default function DataBoundaryLab() {
       met: completedFlags === messages.length,
     },
     {
-      label: 'Correct the critical data-boundary cases',
+      label: 'Handle the visible identifiers, account details, sensitive service context, and business-sensitive material',
       met: criticalDataPassed,
     },
     {
@@ -567,11 +598,17 @@ export default function DataBoundaryLab() {
           policy compliance, or role authorization.
         </p>
         {!criticalDataPassed && (
-          <p className="data-lab__warning">
-            Critical data-boundary misses still need correction before reveal:
-            direct identifiers, account details, sensitive service context, and
-            business-sensitive material need stronger handling.
-          </p>
+          <div className="data-lab__warning">
+            <p>
+              These items still need attention before reveal. Extra risk flags
+              are fine; this list only names the minimum visible issues.
+            </p>
+            <ul>
+              {criticalDataHints.map((hint) => (
+                <li key={hint}>{hint}</li>
+              ))}
+            </ul>
+          </div>
         )}
         <p className="data-lab__self-mark-count" aria-live="polite">
           {selfMarkedScore}/{rubricChecks.length} checked by you

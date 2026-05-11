@@ -250,6 +250,17 @@
   padding-left: 12px;
 }
 
+.data-lab__warning ul {
+  color: var(--ink);
+  font-weight: 600;
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.data-lab__warning li {
+  margin: 4px 0;
+}
+
 .data-lab__self-check li svg {
   margin-top: 3px;
   color: #9aa59f;
