@@ -53,6 +53,14 @@ export default function ModuleGate({ moduleId, moduleTitle, modules }) {
   const completed = isModuleCompleted(progress, moduleId);
   const complete = courseCompleted(progress, modules);
 
+  function handleFacilitatorOff() {
+    setFacilitatorMode(false);
+    setFacilitatorModeState(false);
+    if (window.location.search.includes('facilitator=')) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }
+
   if (!unlocked) {
     return (
       <section className="module-gate module-gate--locked">
@@ -83,7 +91,7 @@ export default function ModuleGate({ moduleId, moduleTitle, modules }) {
           </span>
           <button
             className="course-syllabus__reset"
-            onClick={() => setFacilitatorModeState(setFacilitatorMode(false))}
+            onClick={handleFacilitatorOff}
             type="button"
           >
             Turn off preview
@@ -104,7 +112,7 @@ export default function ModuleGate({ moduleId, moduleTitle, modules }) {
           )}
         </span>
         {next && completed && (
-          <a href={`/modules/${next.id}/`}>
+          <a href={moduleHref(next.id, facilitatorMode)}>
             Next module
             <MoveRight size={16} aria-hidden="true" />
           </a>
@@ -117,7 +125,7 @@ export default function ModuleGate({ moduleId, moduleTitle, modules }) {
             Module complete. Your progress is saved only in this browser.
           </p>
           {next && (
-            <a className="button" href={`/modules/${next.id}/`}>
+            <a className="button" href={moduleHref(next.id, facilitatorMode)}>
               Continue to Module {next.order}
               <MoveRight size={18} aria-hidden="true" />
             </a>
@@ -139,4 +147,8 @@ export default function ModuleGate({ moduleId, moduleTitle, modules }) {
       )}
     </>
   );
+}
+
+function moduleHref(moduleId, facilitatorMode) {
+  return `/modules/${moduleId}/${facilitatorMode ? '?facilitator=1' : ''}`;
 }

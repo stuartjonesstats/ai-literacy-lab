@@ -4,5 +4,8 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   site: 'https://ailitlab.org',
+  devToolbar: {
+    enabled: false,
+  },
   integrations: [mdx(), react()],
 });

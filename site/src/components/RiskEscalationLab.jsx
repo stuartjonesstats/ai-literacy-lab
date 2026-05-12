@@ -179,7 +179,7 @@ const judgmentChallenge = {
         'Escalation is important for exceptions and ambiguous requests. Escalating every routine intake item may be disproportionate once the AI role is narrowed.',
     },
   ],
-  bestOptions: ['modify'],
+  bestOptions: ['modify', 'pause'],
 };
 
 const rubricChecks = [
@@ -337,6 +337,7 @@ export default function RiskEscalationLab() {
         .length,
       1,
     );
+  const reviewCheckThreshold = Math.ceil(rubricChecks.length / 2);
   const noteQuality = useMemo(
     () =>
       analyzeTextQuality(note, {
@@ -364,6 +365,7 @@ export default function RiskEscalationLab() {
     revisedComplete &&
     challengeFacetsComplete &&
     challengePassed &&
+    effectiveRubricScore >= reviewCheckThreshold &&
     noteQuality.passed;
   const completionRequirements = [
     {
@@ -377,6 +379,10 @@ export default function RiskEscalationLab() {
     {
       label: 'Choose a proportional control for the records-office scenario',
       met: challengePassed,
+    },
+    {
+      label: `Show at least ${reviewCheckThreshold} review checks, including up to one learner-marked override`,
+      met: effectiveRubricScore >= reviewCheckThreshold,
     },
     {
       label: 'Write an escalation note with a condition to proceed',
@@ -706,12 +712,14 @@ export default function RiskEscalationLab() {
             <div className="risk-lab__self-check-header">
               <h3>What your answer shows so far</h3>
               <span aria-live="polite">
-                {rubricScore}/{rubricChecks.length} checks
+                {effectiveRubricScore}/{rubricChecks.length} usable checks
               </span>
             </div>
             <p>
               This section shows what the page can detect in your answer so far.
-              These checks support reflection; they do not verify correctness,
+              At least {reviewCheckThreshold} checks are needed before the
+              review opens. You may manually mark one missed check when your
+              answer is defensible. This still does not verify correctness,
               policy compliance, or role authorization.
             </p>
             <p className="risk-lab__self-mark-count" aria-live="polite">

@@ -324,6 +324,7 @@ export default function ReviewLoopLab() {
         .length,
       1,
     );
+  const reviewCheckThreshold = Math.ceil(rubricChecks.length / 2);
   const noteQuality = useMemo(
     () =>
       analyzeTextQuality(note, {
@@ -352,6 +353,7 @@ export default function ReviewLoopLab() {
     inspectedEvidenceCount >= 4 &&
     challengeFacetsComplete &&
     challengePassed &&
+    effectiveRubricScore >= reviewCheckThreshold &&
     noteQuality.passed;
   const completionRequirements = [
     {
@@ -369,6 +371,10 @@ export default function ReviewLoopLab() {
     {
       label: 'Choose a review path that keeps pressure from replacing authority',
       met: challengePassed,
+    },
+    {
+      label: `Show at least ${reviewCheckThreshold} review checks, including up to one learner-marked override`,
+      met: effectiveRubricScore >= reviewCheckThreshold,
     },
     {
       label: 'Write a review note with evidence, authority, and next steps',
@@ -669,13 +675,15 @@ export default function ReviewLoopLab() {
         <div className="review-lab__self-check-header">
           <h3>What your answer shows so far</h3>
           <span aria-live="polite">
-            {rubricScore}/{rubricChecks.length} checks
+            {effectiveRubricScore}/{rubricChecks.length} usable checks
           </span>
         </div>
         <p>
           This section shows what the page can detect in your answer so far.
-          The risky recommendations must not be rubber-stamped, and authority
-          limits must be noticed before the module can complete.
+          At least {reviewCheckThreshold} checks are needed before the review
+          opens. You may manually mark one missed check when your answer is
+          defensible. Risky recommendations still must not be rubber-stamped,
+          and authority limits still matter.
         </p>
         <p className="review-lab__self-mark-count" aria-live="polite">
           {selfMarkedScore}/{rubricChecks.length} checked by you

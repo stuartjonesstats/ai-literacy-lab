@@ -317,14 +317,14 @@ export function readFacilitatorMode() {
 
   const param = new URLSearchParams(window.location.search).get('facilitator');
   if (param === '1') {
-    return setFacilitatorMode(true);
+    return true;
   }
 
   if (param === '0') {
-    return setFacilitatorMode(false);
+    return false;
   }
 
-  return safeGet(FACILITATOR_MODE_KEY) === '1';
+  return false;
 }
 
 export function isFacilitatorPreviewActive() {
@@ -341,7 +341,7 @@ export function isFacilitatorPreviewActive() {
     return false;
   }
 
-  return safeGet(FACILITATOR_MODE_KEY) === '1';
+  return false;
 }
 
 export function setFacilitatorMode(enabled) {
@@ -349,11 +349,7 @@ export function setFacilitatorMode(enabled) {
     return false;
   }
 
-  if (enabled) {
-    safeSet(FACILITATOR_MODE_KEY, '1');
-  } else {
-    safeRemove(FACILITATOR_MODE_KEY);
-  }
+  safeRemove(FACILITATOR_MODE_KEY);
 
   window.dispatchEvent(
     new CustomEvent('ailitlab:facilitator-mode', { detail: Boolean(enabled) }),

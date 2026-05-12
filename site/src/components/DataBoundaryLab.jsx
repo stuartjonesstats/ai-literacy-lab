@@ -98,7 +98,7 @@ const messages = [
   {
     id: 'shelter',
     title: 'Message 5',
-    text: 'Please add a note to my housing case: I am staying at Safe Harbor shelter after domestic violence and cannot receive mail at my old address.',
+    text: 'Please add a note to my housing case: I am staying at a confidential shelter after a safety incident and cannot receive mail at my old address.',
     expectedAction: 'guidance',
     expectedFlags: ['identifier', 'record', 'service', 'privacy'],
     safer:
@@ -145,11 +145,11 @@ const rubricChecks = [
           'example.org',
           'a-104928',
           'prr-22017',
-          'safe harbor',
+          'confidential shelter',
         ])
       );
     },
-    why: 'The summary task does not require emails, case numbers, request IDs, or shelter names.',
+    why: 'The summary task does not require emails, case numbers, request IDs, confidential locations, or safety details.',
   },
   {
     id: 'preserves-themes',
@@ -294,6 +294,7 @@ export default function DataBoundaryLab() {
         .length,
       1,
     );
+  const reviewCheckThreshold = Math.ceil(rubricChecks.length / 2);
   const summaryQuality = useMemo(
     () =>
       analyzeTextQuality(sanitizedSummary, {
@@ -405,6 +406,7 @@ export default function DataBoundaryLab() {
     completedFlags === messages.length &&
     summaryQuality.passed &&
     promptQuality.passed &&
+    effectiveRubricScore >= reviewCheckThreshold &&
     beforeAct.length >= 2 &&
     judgmentQuality.passed;
   const completionRequirements = [
@@ -423,6 +425,10 @@ export default function DataBoundaryLab() {
     {
       label: 'Write a safer prompt',
       met: promptQuality.passed,
+    },
+    {
+      label: `Show at least ${reviewCheckThreshold} review checks, including up to one learner-marked override`,
+      met: effectiveRubricScore >= reviewCheckThreshold,
     },
     {
       label: 'Choose at least two Before You Act considerations',
@@ -706,13 +712,15 @@ export default function DataBoundaryLab() {
         <div className="data-lab__self-check-header">
           <h3>What your answer shows so far</h3>
           <span aria-live="polite">
-            {rubricScore}/{rubricChecks.length} checks
+            {effectiveRubricScore}/{rubricChecks.length} usable checks
           </span>
         </div>
         <p>
           This section shows what the page can detect in your answer so far.
-          These checks support reflection; they do not verify correctness,
-          policy compliance, or role authorization.
+          At least {reviewCheckThreshold} checks are needed before the review
+          opens. You may manually mark one missed check when your answer is
+          defensible. This still does not verify correctness, policy
+          compliance, or role authorization.
         </p>
         {showCriticalDataHints && (
           <div className="data-lab__warning">

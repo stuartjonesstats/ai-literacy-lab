@@ -342,6 +342,28 @@ p {
   padding-left: 12px;
 }
 
+.course-syllabus__path-note {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 14px;
+  margin: 18px 0;
+}
+
+.course-syllabus__path-note h3 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.course-syllabus__path-note ol {
+  margin: 0;
+  padding-left: 22px;
+}
+
+.course-syllabus__path-note li {
+  margin-bottom: 4px;
+}
+
 .course-syllabus__storage-warning {
   border-left: 4px solid var(--warn);
   color: var(--warn);

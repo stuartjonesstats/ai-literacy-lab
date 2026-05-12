@@ -190,7 +190,8 @@ export default function ReflectionBookend({ kind }) {
           <p>{config.intro}</p>
           {draftSavedAt && (
             <p className="local-draft-status">
-              Draft saved locally in this browser.
+              Draft saved locally in this browser. Add enough detail to enable
+              the continue button.
             </p>
           )}
           <label>

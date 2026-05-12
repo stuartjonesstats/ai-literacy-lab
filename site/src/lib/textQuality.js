@@ -18,6 +18,50 @@ const SPAM_PHRASES = [
   'let me finish',
 ];
 
+const LOW_EFFORT_WORDS = new Set([
+  'alpha',
+  'beta',
+  'gamma',
+  'delta',
+  'epsilon',
+  'zeta',
+  'eta',
+  'theta',
+  'iota',
+  'kappa',
+  'lambda',
+  'mu',
+  'nu',
+  'xi',
+  'omicron',
+  'pi',
+  'rho',
+  'sigma',
+  'tau',
+  'upsilon',
+  'phi',
+  'chi',
+  'psi',
+  'omega',
+  'one',
+  'two',
+  'three',
+  'four',
+  'five',
+  'six',
+  'seven',
+  'eight',
+  'nine',
+  'ten',
+  'word',
+  'words',
+  'sentence',
+  'sentences',
+  'thing',
+  'things',
+  'stuff',
+]);
+
 export function analyzeTextQuality(text, options = {}) {
   const {
     minChars = 80,
@@ -52,6 +96,57 @@ export function analyzeTextQuality(text, options = {}) {
 
   if (SPAM_PHRASES.some((phrase) => includesBoundedPhrase(lower, phrase))) {
     reasons.push('Replace placeholder or get-through-it language with a real response.');
+  }
+
+  const lowEffortCount = words.filter((word) => LOW_EFFORT_WORDS.has(word))
+    .length;
+  if (words.length >= 8 && lowEffortCount / words.length >= 0.65) {
+    reasons.push('Replace list-like filler with ordinary workplace reasoning.');
+  }
+
+  const sentenceSignals = words.filter((word) =>
+    [
+      'because',
+      'if',
+      'when',
+      'would',
+      'should',
+      'could',
+      'need',
+      'needs',
+      'responsible',
+      'work',
+      'hesitate',
+      'risk',
+      'stakes',
+      'context',
+      'review',
+      'verify',
+      'verified',
+      'facts',
+      'data',
+      'information',
+      'privacy',
+      'policy',
+      'human',
+      'accountable',
+      'authority',
+      'evidence',
+      'source',
+      'people',
+      'impact',
+      'harm',
+      'harmed',
+      'escalate',
+      'confidential',
+      'sensitive',
+      'decision',
+      'output',
+      'tool',
+    ].includes(word),
+  ).length;
+  if (words.length >= effectiveMinWords && sentenceSignals === 0) {
+    reasons.push('Name at least one workplace reason, risk, evidence need, or review step.');
   }
 
   if (words.length >= 8 && words.filter((word) => /[aeiou]/i.test(word)).length < words.length * 0.55) {
@@ -127,10 +222,10 @@ function escapeRegExp(value) {
 export function textQualitySummary(quality) {
   if (quality.passed) {
     if (quality.suggestions?.length) {
-      return `Response is substantive enough. Optional refinement: ${quality.suggestions[0]}`;
+      return `Draft has enough detail for this prompt. Optional refinement: ${quality.suggestions[0]}`;
     }
 
-    return 'Response is substantive enough for this local prompt check.';
+    return 'Draft has enough detail for this local prompt check.';
   }
 
   return quality.reasons.join(' ');

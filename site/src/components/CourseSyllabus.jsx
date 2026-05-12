@@ -85,6 +85,14 @@ export default function CourseSyllabus({ modules }) {
     }
   }
 
+  function handleFacilitatorOff() {
+    setFacilitatorMode(false);
+    setFacilitatorModeState(false);
+    if (window.location.search.includes('facilitator=')) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }
+
   return (
     <section className="course-syllabus" aria-labelledby="syllabus-title">
       <div className="course-syllabus__intro">
@@ -101,6 +109,16 @@ export default function CourseSyllabus({ modules }) {
             Both are saved locally and included on the learning record, so
             write them as real evidence of learning rather than placeholders.
           </p>
+          <div className="course-syllabus__path-note">
+            <h3>What completion means</h3>
+            <ol>
+              <li>Write the opening reflection.</li>
+              <li>Commit to a judgment before the fuller context appears.</li>
+              <li>Reconsider the case using the Before You Act prompts.</li>
+              <li>Document a short judgment or artifact.</li>
+              <li>Reveal the review and mark the module complete.</li>
+            </ol>
+          </div>
           <p className="course-syllabus__time">
             Estimated full lab time: {formatTimeRange(totalMinutes)}.
           </p>
@@ -118,8 +136,9 @@ export default function CourseSyllabus({ modules }) {
           {facilitatorMode && (
             <p className="course-syllabus__facilitator" role="status">
               Facilitator preview is on. All modules are open for planning,
-              discussion, and workshop navigation. This does not mark learner
-              work complete.
+              discussion, and workshop navigation. Preview links include a
+              URL flag and do not persist after normal learner navigation. This
+              does not mark learner work complete.
             </p>
           )}
         </div>
@@ -134,7 +153,7 @@ export default function CourseSyllabus({ modules }) {
           {facilitatorMode && (
             <button
               className="course-syllabus__reset"
-              onClick={() => setFacilitatorModeState(setFacilitatorMode(false))}
+              onClick={handleFacilitatorOff}
               type="button"
             >
               Turn off facilitator preview

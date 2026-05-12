@@ -360,6 +360,7 @@ export default function DecisionSort({ requiresReflection }) {
   const finalReady =
     revisedCompleted === tasks.length &&
     reflectionQuality.passed &&
+    effectiveRubricScore >= 3 &&
     challengeConsiderations.length >= 2 &&
     Boolean(challengeChoice) &&
     challengeQuality.passed;
@@ -371,6 +372,10 @@ export default function DecisionSort({ requiresReflection }) {
     {
       label: 'Write a substantive explanation of the context shift',
       met: reflectionQuality.passed,
+    },
+    {
+      label: 'Show at least three review checks, including up to one learner-marked override',
+      met: effectiveRubricScore >= 3,
     },
     {
       label: 'Choose at least two Before You Act considerations',
@@ -442,7 +447,9 @@ export default function DecisionSort({ requiresReflection }) {
           <h2 id="decision-sort-title">Sort, then revise</h2>
         </div>
         <div className="decision-sort__progress" aria-live="polite">
-          {twistsVisible ? revisedCompleted : initialCompleted}/{tasks.length}
+          {twistsVisible
+            ? `Step 2 of 4: reconsider ${revisedCompleted}/${tasks.length}`
+            : `Step 1 of 4: commit ${initialCompleted}/${tasks.length}`}
         </div>
       </div>
       {draftSavedAt && !showDebrief && (
@@ -619,16 +626,20 @@ export default function DecisionSort({ requiresReflection }) {
           <div className="decision-sort__self-check">
             <div className="decision-sort__self-check-header">
               <h3>What your answer shows so far</h3>
-              <span aria-live="polite">{rubricScore}/{rubricChecks.length} checks</span>
+              <span aria-live="polite">
+                {effectiveRubricScore}/{rubricChecks.length} usable checks
+              </span>
             </div>
             <p>
               This section shows what the page can detect in your answer so far.
-              These checks support reflection; they do not verify correctness,
-              policy compliance, or role authorization. They are advisory and
-              do not block the debrief.
+              At least three checks are needed before the review opens. Because
+              judgment can vary, you may manually mark one missed check when you
+              can defend it. These checks still do not verify policy compliance
+              or role authorization.
             </p>
             <p className="decision-sort__self-mark-count" aria-live="polite">
-              {selfMarkedScore}/{rubricChecks.length} checked by you
+              {selfMarkedScore}/{rubricChecks.length} checked by you; one can
+              count toward the reveal
             </p>
             <ul>
               {rubricResults.map((check) => (

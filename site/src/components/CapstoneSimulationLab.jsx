@@ -367,6 +367,14 @@ export default function CapstoneSimulationLab() {
   const defensibleFinalAction = ['pilot', 'pause', 'escalate'].includes(finalAction);
   const selfMarkedScore = rubricResults.filter((check) => selfMarked[check.id])
     .length;
+  const effectiveRubricScore =
+    rubricScore +
+    Math.min(
+      rubricResults.filter((check) => !check.passed && selfMarked[check.id])
+        .length,
+      1,
+    );
+  const reviewCheckThreshold = Math.ceil(rubricChecks.length / 2);
   const memoQuality = useMemo(
     () =>
       analyzeTextQuality(memoText, {
@@ -414,6 +422,7 @@ export default function CapstoneSimulationLab() {
     interactionComplete &&
     defensibleFinalAction &&
     completedMemoFields === decisionFields.length &&
+    effectiveRubricScore >= reviewCheckThreshold &&
     memoQuality.passed;
   const completionRequirements = [
     {
@@ -427,6 +436,10 @@ export default function CapstoneSimulationLab() {
     {
       label: 'Complete all decision memo fields',
       met: completedMemoFields === decisionFields.length,
+    },
+    {
+      label: `Show at least ${reviewCheckThreshold} review checks, including up to one learner-marked override`,
+      met: effectiveRubricScore >= reviewCheckThreshold,
     },
     {
       label: 'Write a substantive decision memo',
@@ -794,13 +807,16 @@ export default function CapstoneSimulationLab() {
       <div className="capstone-lab__self-check">
         <div className="capstone-lab__self-check-header">
           <h3>Capstone self-check</h3>
-          <span aria-live="polite">{rubricScore}/{rubricChecks.length} checks</span>
+          <span aria-live="polite">
+            {effectiveRubricScore}/{rubricChecks.length} usable checks
+          </span>
         </div>
         <p>
           This section shows what the page can detect in your answer so far.
-          These checks support reflection; they do not verify correctness,
-          policy compliance, legal compliance, or role authorization. Use them
-          to improve your memo, not to chase a perfect score.
+          At least {reviewCheckThreshold} checks are needed before the review
+          opens. You may manually mark one missed check when your answer is
+          defensible. This still does not verify correctness, policy
+          compliance, legal compliance, or role authorization.
         </p>
         <p className="capstone-lab__self-mark-count" aria-live="polite">
           {selfMarkedScore}/{rubricChecks.length} checked by you

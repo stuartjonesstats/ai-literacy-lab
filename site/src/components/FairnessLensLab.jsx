@@ -179,6 +179,7 @@ export default function FairnessLensLab() {
         .length,
       1,
     );
+  const reviewCheckThreshold = Math.ceil(rubricChecks.length / 2);
   const rewriteQuality = useMemo(
     () =>
       analyzeTextQuality(rewrite, {
@@ -215,6 +216,7 @@ export default function FairnessLensLab() {
     showContext &&
     revisedDecision &&
     concernComplete &&
+    effectiveRubricScore >= reviewCheckThreshold &&
     rationaleQuality.passed &&
     rewriteQuality.passed;
   const completionRequirements = [
@@ -233,6 +235,10 @@ export default function FairnessLensLab() {
     {
       label: 'Select concerns for every criterion',
       met: concernComplete,
+    },
+    {
+      label: `Show at least ${reviewCheckThreshold} review checks, including up to one learner-marked override`,
+      met: effectiveRubricScore >= reviewCheckThreshold,
     },
     {
       label: 'Explain who has less realistic access to the criteria and why',
@@ -473,14 +479,15 @@ export default function FairnessLensLab() {
             <div className="fairness-lab__self-check-header">
               <h3>What your answer shows so far</h3>
               <span aria-live="polite">
-                {rubricScore}/{rubricChecks.length} checks
+                {effectiveRubricScore}/{rubricChecks.length} usable checks
               </span>
             </div>
             <p>
               This section shows what the page can detect in your answer so far.
-              These checks support reflection; they do not verify correctness,
-              policy compliance, or role authorization. They are advisory and
-              do not block the debrief.
+              At least {reviewCheckThreshold} checks are needed before the
+              review opens. You may manually mark one missed check when your
+              answer is defensible. This still does not verify correctness,
+              policy compliance, or role authorization.
             </p>
             <p className="fairness-lab__self-mark-count" aria-live="polite">
               {selfMarkedScore}/{rubricChecks.length} checked by you

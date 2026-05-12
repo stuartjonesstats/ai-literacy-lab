@@ -422,12 +422,14 @@ export default function WorkflowBuilderLab() {
         .length,
       1,
     );
+  const reviewCheckThreshold = Math.ceil(rubricChecks.length / 2);
 
   const ready =
     selectedFailures.length >= 2 &&
     selectedStages.length >= 5 &&
     completedPlanFields === usePlanFields.length &&
     promptQuality.passed &&
+    effectiveRubricScore >= reviewCheckThreshold &&
     Boolean(selectedAction?.responsible) &&
     selectedConsiderations.length >= 3 &&
     judgmentQuality.passed;
@@ -447,6 +449,10 @@ export default function WorkflowBuilderLab() {
     {
       label: 'Write a substantive AI Use Plan',
       met: promptQuality.passed,
+    },
+    {
+      label: `Show at least ${reviewCheckThreshold} review checks, including up to one learner-marked override`,
+      met: effectiveRubricScore >= reviewCheckThreshold,
     },
     {
       label: 'Choose a responsible roleplay action',
@@ -746,13 +752,15 @@ export default function WorkflowBuilderLab() {
         <div className="workflow-lab__self-check-header">
           <h3>What your answer shows so far</h3>
           <span aria-live="polite">
-            {rubricScore}/{rubricChecks.length} checks
+            {effectiveRubricScore}/{rubricChecks.length} usable checks
           </span>
         </div>
         <p>
           This section shows what the page can detect in your answer so far.
-          These checks support reflection; they do not verify correctness,
-          policy compliance, or role authorization.
+          At least {reviewCheckThreshold} checks are needed before the review
+          opens. You may manually mark one missed check when your answer is
+          defensible. This still does not verify correctness, policy
+          compliance, or role authorization.
         </p>
         <p className="workflow-lab__self-mark-count" aria-live="polite">
           {selfMarkedScore}/{rubricChecks.length} checked by you

@@ -205,6 +205,7 @@ export default function ConfidenceTrap() {
         .length,
       1,
     );
+  const reviewCheckThreshold = Math.ceil(rubricChecks.length / 2);
   const rewriteQuality = useMemo(
     () =>
       analyzeTextQuality(rewrite, {
@@ -242,6 +243,7 @@ export default function ConfidenceTrap() {
     evidenceVisible &&
     confidenceRevised &&
     completedClaims === claims.length &&
+    effectiveRubricScore >= reviewCheckThreshold &&
     calibrationQuality.passed &&
     rewriteQuality.passed;
   const completionRequirements = [
@@ -260,6 +262,10 @@ export default function ConfidenceTrap() {
     {
       label: 'Classify all five claims',
       met: completedClaims === claims.length,
+    },
+    {
+      label: `Show at least ${reviewCheckThreshold} review checks, including up to one learner-marked override`,
+      met: effectiveRubricScore >= reviewCheckThreshold,
     },
     {
       label: 'Explain what changed after inspecting the evidence',
@@ -343,6 +349,11 @@ export default function ConfidenceTrap() {
     setSelfMarked((current) => ({ ...current, [checkId]: !current[checkId] }));
   }
 
+  function revealEvidence() {
+    setEvidenceVisible(true);
+    setRevisedConfidence((current) => current ?? confidence);
+  }
+
   function revealDebrief() {
     setShowDebrief(true);
     clearDraft('02-confidently-wrong');
@@ -421,7 +432,7 @@ export default function ConfidenceTrap() {
         <button
           className="confidence-trap__reveal"
           disabled={!firstMove}
-          onClick={() => setEvidenceVisible(true)}
+          onClick={revealEvidence}
           type="button"
         >
           <Eye size={18} aria-hidden="true" />
@@ -530,13 +541,15 @@ export default function ConfidenceTrap() {
             <div className="confidence-trap__self-check-header">
               <h3>What your answer shows so far</h3>
               <span aria-live="polite">
-                {rubricScore}/{rubricChecks.length} checks
+                {effectiveRubricScore}/{rubricChecks.length} usable checks
               </span>
             </div>
             <p>
               This section shows what the page can detect in your answer so far.
-              It supports reflection; it does not verify policy compliance or
-              role authorization. It is advisory and does not block the debrief.
+              At least {reviewCheckThreshold} checks are needed before the
+              review opens. You may manually mark one missed check when your
+              answer is defensible. This still does not verify policy
+              compliance or role authorization.
             </p>
             <p className="confidence-trap__self-mark-count" aria-live="polite">
               {selfMarkedScore}/{rubricChecks.length} checked by you
