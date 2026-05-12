@@ -24,7 +24,7 @@ const failureModes = [
   {
     id: 'facts',
     label: 'Facts may be invented or overstated',
-    why: 'The one-shot prompt does not require AI to separate supplied facts from assumptions.',
+    why: 'The single prompt does not require AI to separate supplied facts from assumptions.',
   },
   {
     id: 'verification',
@@ -49,17 +49,24 @@ const messyNotes = [
 
 const workflowStages = [
   {
-    id: 'purpose',
-    title: 'Define the decision and audience',
-    strong:
-      'State what the committee must decide, who will read the note, and which claims require evidence.',
-    helpful: true,
-  },
-  {
     id: 'sanitize',
     title: 'Sanitize and minimize notes',
     strong:
       'Remove vendor names, quoted pricing, evaluator comments, and unnecessary request details before prompting.',
+    helpful: true,
+  },
+  {
+    id: 'paste-raw',
+    title: 'Paste the raw notes for maximum context',
+    strong:
+      'This exposes unnecessary vendor, pricing, access, and internal evaluation details.',
+    helpful: false,
+  },
+  {
+    id: 'purpose',
+    title: 'Define the decision and audience',
+    strong:
+      'State what the committee must decide, who will read the note, and which claims require evidence.',
     helpful: true,
   },
   {
@@ -70,11 +77,11 @@ const workflowStages = [
     helpful: true,
   },
   {
-    id: 'draft-bounded',
-    title: 'Draft from supplied notes only',
+    id: 'invent',
+    title: 'Ask AI to fill the missing facts',
     strong:
-      'Ask for a draft that labels assumptions, unknowns, and statements needing verification.',
-    helpful: true,
+      'Missing facts should become open questions, not generated claims.',
+    helpful: false,
   },
   {
     id: 'verify',
@@ -84,32 +91,25 @@ const workflowStages = [
     helpful: true,
   },
   {
-    id: 'own',
-    title: 'Revise and own the final note',
+    id: 'draft-bounded',
+    title: 'Draft from supplied notes only',
     strong:
-      'Use human judgment to revise, remove unsupported claims, and decide what still needs escalation.',
+      'Ask for a draft that labels assumptions, unknowns, and statements needing verification.',
     helpful: true,
-  },
-  {
-    id: 'paste-raw',
-    title: 'Paste the raw notes for maximum context',
-    strong:
-      'Tempting, but this exposes unnecessary vendor, pricing, access, and internal evaluation details.',
-    helpful: false,
-  },
-  {
-    id: 'invent',
-    title: 'Ask AI to fill the missing facts',
-    strong:
-      'Tempting, but missing facts should become open questions, not generated claims.',
-    helpful: false,
   },
   {
     id: 'send-directly',
     title: 'Send the polished output directly',
     strong:
-      'Tempting, but polish can hide unsupported claims and unresolved accountability.',
+      'Polish can hide unsupported claims and unresolved accountability.',
     helpful: false,
+  },
+  {
+    id: 'own',
+    title: 'Revise and own the final note',
+    strong:
+      'Use human judgment to revise, remove unsupported claims, and decide what still needs escalation.',
+    helpful: true,
   },
 ];
 
@@ -260,20 +260,6 @@ export default function WorkflowBuilderLab() {
     [usePlan],
   );
 
-  const selectedHelpfulStages = useMemo(
-    () =>
-      workflowStages.filter(
-        (stage) => stage.helpful && selectedStages.includes(stage.id),
-      ).length,
-    [selectedStages],
-  );
-  const selectedRiskyStages = useMemo(
-    () =>
-      workflowStages.filter(
-        (stage) => !stage.helpful && selectedStages.includes(stage.id),
-      ).length,
-    [selectedStages],
-  );
   const promptQuality = useMemo(
     () =>
       analyzeTextQuality(planText, {
@@ -352,7 +338,7 @@ export default function WorkflowBuilderLab() {
     judgmentQuality.passed;
   const completionRequirements = [
     {
-      label: 'Identify at least two one-shot workflow failure modes',
+      label: 'Identify at least two single-prompt workflow failure modes',
       met: selectedFailures.length >= 2,
     },
     {
@@ -444,10 +430,10 @@ export default function WorkflowBuilderLab() {
       <div className="workflow-lab__header">
         <div>
           <p className="workflow-lab__eyebrow">Interactive Lab</p>
-          <h2 id="workflow-lab-title">From one-shot prompt to workflow</h2>
+          <h2 id="workflow-lab-title">From single prompt to workflow</h2>
         </div>
         <div className="workflow-lab__progress" aria-live="polite">
-          {selectedHelpfulStages}/6 useful
+          {selectedStages.length}/{workflowStages.length} selected
         </div>
       </div>
       {draftSavedAt && !showDebrief && (
@@ -476,7 +462,7 @@ export default function WorkflowBuilderLab() {
       </div>
 
       <fieldset className="workflow-lab__fieldset">
-        <legend>What makes the one-shot workflow fragile?</legend>
+        <legend>What makes the single-prompt workflow fragile?</legend>
         <div className="workflow-lab__failure-grid">
           {failureModes.map((mode) => (
             <button
@@ -495,14 +481,13 @@ export default function WorkflowBuilderLab() {
       <div className="workflow-lab__stage-list">
         <h3>Build a stronger workflow</h3>
         <p>
-          Select the stages you would include. Some options are intentionally
-          tempting but unsafe.
+          Select the stages you would include. The options are mixed together;
+          judge what belongs in a responsible workflow.
         </p>
         {workflowStages.map((stage) => (
           <article
             className={[
               selectedStages.includes(stage.id) ? 'is-selected' : '',
-              !stage.helpful ? 'is-risky' : '',
             ]
               .filter(Boolean)
               .join(' ')}
@@ -521,11 +506,6 @@ export default function WorkflowBuilderLab() {
             </button>
           </article>
         ))}
-        {selectedRiskyStages > 0 && (
-          <p className="workflow-lab__warning">
-            Remove the tempting unsafe stage before completing the module.
-          </p>
-        )}
       </div>
 
       <div className="workflow-lab__prompt">

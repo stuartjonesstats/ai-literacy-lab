@@ -164,6 +164,11 @@
   font-weight: 700;
 }
 
+.data-lab__field-help {
+  color: var(--muted) !important;
+  font-weight: 600 !important;
+}
+
 .data-lab__textarea small.is-passed {
   color: var(--accent-strong);
 }

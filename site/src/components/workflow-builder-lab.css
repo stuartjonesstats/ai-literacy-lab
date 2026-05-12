@@ -131,17 +131,6 @@
   padding: 12px 8px;
 }
 
-.workflow-lab__stage-list article.is-risky h4::after {
-  content: " risky";
-  color: var(--warn);
-  font-size: 0.78rem;
-  text-transform: uppercase;
-}
-
-.workflow-lab__stage-list article.is-risky.is-selected {
-  background: #fff8ed;
-}
-
 .workflow-lab__stage-list h4 {
   margin: 0 0 6px;
 }

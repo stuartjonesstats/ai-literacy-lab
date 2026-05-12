@@ -29,6 +29,7 @@ const capstoneMemoLabels = {
   review: 'Human review owner',
   harm: 'Fairness or harm concern',
   escalation: 'Escalation trigger',
+  tradeoff: 'Final tradeoff judgment',
 };
 
 export default function CompletionStatement({ progress, modules }) {

@@ -46,7 +46,7 @@ const assistTasks = [
 const claimChecks = [
   {
     id: 'theme',
-    claim: 'Benefit status confusion and appointment-access delays appear in the packet.',
+    claim: 'Benefit status confusion and appointment-access delays appear in the evidence notes.',
     answer: 'supported',
     why: 'The sample records include both themes, so this is a reasonable bounded claim.',
   },
@@ -54,7 +54,7 @@ const claimChecks = [
     id: 'percent',
     claim: 'Benefit status confusion caused 42% of service requests this month.',
     answer: 'unsupported',
-    why: 'The packet is a small sample and does not provide a validated monthly percentage.',
+    why: 'The evidence notes are a small sample and do not provide a validated monthly percentage.',
   },
   {
     id: 'ranking',
@@ -501,7 +501,7 @@ export default function CapstoneSimulationLab() {
       )}
 
       <div className="capstone-lab__scenario">
-        <h3>Scenario packet</h3>
+        <h3>Scenario</h3>
         <p>
           A public benefits office wants to use AI to review a growing service
           backlog, identify recurring access barriers, draft response options,
@@ -509,7 +509,7 @@ export default function CapstoneSimulationLab() {
           overloaded, appointment slots are limited, and a supervisor wants a
           triage plan by the end of the week.
         </p>
-        <div className="capstone-lab__packet">
+        <div className="capstone-lab__evidence">
           <article>
             <h4>Evidence available</h4>
             <ul>
@@ -557,7 +557,7 @@ export default function CapstoneSimulationLab() {
       <fieldset className="capstone-lab__block">
         <legend>2. Inspect the AI output</legend>
         <p>
-          Classify each claim against the synthetic packet. Treat polished
+          Classify each claim against the synthetic evidence notes. Treat polished
           language as neither proof nor disproof.
         </p>
         <div className="capstone-lab__claims">
@@ -802,7 +802,7 @@ export default function CapstoneSimulationLab() {
               <h4>Claim inspection</h4>
               <p>
                 You classified {claimScore}/{claimChecks.length} claims in line
-                with the packet. Unsupported percentages and priority rules
+                with the evidence notes. Unsupported percentages and priority rules
                 should not survive into the final memo as facts, especially
                 when they could shape public benefit access.
               </p>

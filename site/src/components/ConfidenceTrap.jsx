@@ -32,21 +32,21 @@ const claims = [
     text: 'Late reporting is the main compliance risk in this grant file.',
     answer: 'overstated',
     feedback:
-      'Late reporting appears, but the packet also shows portal access issues, documentation gaps, guidance changes, staffing constraints, and approved extensions.',
+      'Late reporting appears, but the evidence notes also show portal access issues, documentation gaps, guidance changes, staffing constraints, and approved extensions.',
   },
   {
     id: 'subrecipient-cause',
     text: 'Most of the delays appear caused by poor subrecipient documentation.',
     answer: 'overstated',
     feedback:
-      'The packet mentions one documentation issue and one folder-access problem. It does not support assigning most delays to subrecipient documentation.',
+      'The evidence notes mention one documentation issue and one folder-access problem. They do not support assigning most delays to subrecipient documentation.',
   },
   {
     id: 'withhold-reimbursements',
     text: 'The agency should withhold reimbursements until the subrecipient completes compliance retraining.',
     answer: 'unsupported',
     feedback:
-      'The packet does not establish a sanction threshold, reimbursement rule, corrective-action requirement, or accountable approval path.',
+      'The evidence notes do not establish a sanction threshold, reimbursement rule, corrective-action requirement, or accountable approval path.',
   },
   {
     id: 'portal-issues',
@@ -60,7 +60,7 @@ const claims = [
     text: 'Compliance training should be the primary corrective action.',
     answer: 'unsupported',
     feedback:
-      'Training might be useful, but the packet points to mixed causes and does not show training as the primary fix.',
+      'Training might be useful, but the evidence notes point to mixed causes and do not show training as the primary fix.',
   },
 ];
 
@@ -71,7 +71,7 @@ const options = [
 ];
 
 const betterSummary =
-  'This grant file shows a mixed set of possible compliance issues, including late reporting, portal access problems, documentation gaps, changing guidance, staffing constraints, and timing questions. The packet is too limited to rank causes or recommend sanctions. A responsible next step would be to verify the applicable grant rules, review the source records with the accountable program owner, separate technical access issues from documentation gaps, and document any corrective action before acting on reimbursements.';
+  'This grant file shows a mixed set of possible compliance issues, including late reporting, portal access problems, documentation gaps, changing guidance, staffing constraints, and timing questions. The evidence is too limited to rank causes or recommend sanctions. A responsible next step would be to verify the applicable grant rules, review the source records with the accountable program owner, separate technical access issues from documentation gaps, and document any corrective action before acting on reimbursements.';
 
 const rubricChecks = [
   {
@@ -80,7 +80,7 @@ const rubricChecks = [
     test: (text) =>
       includesAny(text, [
         'limited',
-        'packet',
+        'evidence',
         'file',
         'small set',
         'not enough',
@@ -88,7 +88,7 @@ const rubricChecks = [
         '8',
       ]) &&
       includesAny(text, ['limited', 'not enough', 'cannot', 'can’t', 'caution', 'verify']),
-    why: 'A safer rewrite should not treat a short evidence packet as enough to rank causes confidently.',
+    why: 'A safer rewrite should not treat a short set of evidence notes as enough to rank causes confidently.',
   },
   {
     id: 'multiple-factors',
@@ -104,7 +104,7 @@ const rubricChecks = [
         'invoice',
         'extension',
       ]) >= 3,
-    why: 'The evidence packet contains more than one plausible compliance factor.',
+    why: 'The evidence notes contain more than one plausible compliance factor.',
   },
   {
     id: 'avoids-ranking',
@@ -119,7 +119,7 @@ const rubricChecks = [
         'must withhold',
         'withhold reimbursement',
       ]),
-    why: 'The packet does not justify ranking causes or jumping to a sanction.',
+    why: 'The evidence notes do not justify ranking causes or jumping to a sanction.',
   },
   {
     id: 'verification-step',
@@ -213,7 +213,7 @@ export default function ConfidenceTrap() {
         requiredAny: ['evidence', 'limited', 'review', 'verify', 'rules'],
         requiredGroups: [
           {
-            terms: ['limited', 'packet', 'not enough', 'short', 'file'],
+            terms: ['limited', 'evidence', 'not enough', 'short', 'file'],
             message: 'Name the evidence limit.',
           },
           {
@@ -250,7 +250,7 @@ export default function ConfidenceTrap() {
       met: Boolean(firstMove),
     },
     {
-      label: 'Reveal the evidence packet',
+      label: 'Reveal the evidence notes',
       met: evidenceVisible,
     },
     {
@@ -425,12 +425,12 @@ export default function ConfidenceTrap() {
           type="button"
         >
           <Eye size={18} aria-hidden="true" />
-          Reveal evidence packet
+          Reveal evidence notes
         </button>
       ) : (
         <>
           <div className="confidence-trap__evidence">
-            <h3>Evidence packet</h3>
+            <h3>Evidence notes</h3>
             <ol>
               {evidenceNotes.map((note) => (
                 <li key={note}>{note}</li>

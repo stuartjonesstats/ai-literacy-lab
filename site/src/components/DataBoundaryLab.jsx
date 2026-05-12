@@ -112,8 +112,8 @@ const rubricChecks = [
   {
     id: 'no-direct-identifiers',
     label: 'Removes direct identifiers and case specifics',
-    test: (packet, prompt) => {
-      const combined = `${packet} ${prompt}`;
+    test: (summary, prompt) => {
+      const combined = `${summary} ${prompt}`;
       return (
         combined.trim().length > 80 &&
         !includesAny(combined, [
@@ -131,8 +131,8 @@ const rubricChecks = [
   {
     id: 'preserves-themes',
     label: 'Preserves useful public-service themes',
-    test: (packet) =>
-      countMatches(packet, [
+    test: (summary) =>
+      countMatches(summary, [
         'renewal',
         'benefits',
         'kiosk',
@@ -152,8 +152,8 @@ const rubricChecks = [
   {
     id: 'separates-urgent',
     label: 'Separates urgent follow-up from theme analysis',
-    test: (packet, prompt) =>
-      includesAny(`${packet} ${prompt}`, [
+    test: (summary, prompt) =>
+      includesAny(`${summary} ${prompt}`, [
         'urgent',
         'follow-up',
         'follow up',
@@ -169,7 +169,7 @@ const rubricChecks = [
   {
     id: 'limits-inference',
     label: 'Tells AI not to infer sensitive facts',
-    test: (packet, prompt) =>
+    test: (summary, prompt) =>
       includesAny(prompt, [
         'do not infer',
         'avoid inferring',
@@ -184,8 +184,8 @@ const rubricChecks = [
   {
     id: 'approved-process',
     label: 'Keeps approval or policy uncertainty visible',
-    test: (packet, prompt) =>
-      includesAny(`${packet} ${prompt}`, [
+    test: (summary, prompt) =>
+      includesAny(`${summary} ${prompt}`, [
         'approved',
         'policy',
         'guidance',
@@ -215,7 +215,7 @@ function includesAll(left, right) {
 export default function DataBoundaryLab() {
   const [selectedActions, setSelectedActions] = useState({});
   const [selectedFlags, setSelectedFlags] = useState({});
-  const [sanitizedPacket, setSanitizedPacket] = useState('');
+  const [sanitizedSummary, setSanitizedSummary] = useState('');
   const [saferPrompt, setSaferPrompt] = useState('');
   const [judgmentResponse, setJudgmentResponse] = useState('');
   const [selfMarked, setSelfMarked] = useState({});
@@ -255,9 +255,9 @@ export default function DataBoundaryLab() {
     () =>
       rubricChecks.map((check) => ({
         ...check,
-        passed: check.test(sanitizedPacket, saferPrompt),
+        passed: check.test(sanitizedSummary, saferPrompt),
       })),
-    [sanitizedPacket, saferPrompt],
+    [sanitizedSummary, saferPrompt],
   );
 
   const rubricScore = rubricResults.filter((check) => check.passed).length;
@@ -270,9 +270,9 @@ export default function DataBoundaryLab() {
         .length,
       1,
     );
-  const packetQuality = useMemo(
+  const summaryQuality = useMemo(
     () =>
-      analyzeTextQuality(sanitizedPacket, {
+      analyzeTextQuality(sanitizedSummary, {
         minChars: 110,
         minWords: 18,
         requiredAny: ['benefits', 'kiosk', 'privacy', 'accessibility', 'upload', 'housing'],
@@ -287,7 +287,7 @@ export default function DataBoundaryLab() {
           },
         ],
       }),
-    [sanitizedPacket],
+    [sanitizedSummary],
   );
   const promptQuality = useMemo(
     () =>
@@ -317,15 +317,15 @@ export default function DataBoundaryLab() {
       analyzeTextQuality(judgmentResponse, {
         minChars: 130,
         minWords: 24,
-        requiredAny: ['minimum', 'route', 'approved', 'exclude', 'because'],
+        requiredAny: ['include', 'route', 'approved', 'exclude', 'because'],
         requiredGroups: [
           {
-            terms: ['minimum', 'least', 'only', 'exclude', 'remove'],
-            message: 'Name what belongs in the minimum viable data packet.',
+            terms: ['include', 'only', 'theme', 'summary', 'exclude', 'remove'],
+            message: 'Name what can go into the AI summary and what should stay out.',
           },
           {
             terms: ['approved', 'route', 'case', 'accommodation', 'privacy', 'escalate'],
-            message: 'Name what should use an approved route instead of the AI packet.',
+            message: 'Name what should use an approved route instead of the AI tool.',
           },
           {
             terms: ['because', 'so that', 'risk', 'purpose', 'needed'],
@@ -379,7 +379,7 @@ export default function DataBoundaryLab() {
   const ready =
     completedActions === messages.length &&
     completedFlags === messages.length &&
-    packetQuality.passed &&
+    summaryQuality.passed &&
     promptQuality.passed &&
     judgmentQuality.passed;
   const completionRequirements = [
@@ -392,8 +392,8 @@ export default function DataBoundaryLab() {
       met: completedFlags === messages.length,
     },
     {
-      label: 'Write a sanitized public-service packet',
-      met: packetQuality.passed,
+      label: 'Write a sanitized public-service summary',
+      met: summaryQuality.passed,
     },
     {
       label: 'Write a safer prompt',
@@ -418,8 +418,10 @@ export default function DataBoundaryLab() {
           ? draft.selectedFlags
           : {},
       );
-      setSanitizedPacket(
-        typeof draft.sanitizedPacket === 'string' ? draft.sanitizedPacket : '',
+      setSanitizedSummary(
+        typeof draft.sanitizedSummary === 'string'
+          ? draft.sanitizedSummary
+          : '',
       );
       setSaferPrompt(typeof draft.saferPrompt === 'string' ? draft.saferPrompt : '');
       setJudgmentResponse(
@@ -438,7 +440,7 @@ export default function DataBoundaryLab() {
     const hasWork =
       Object.keys(selectedActions).length > 0 ||
       Object.keys(selectedFlags).length > 0 ||
-      Boolean(sanitizedPacket.trim()) ||
+      Boolean(sanitizedSummary.trim()) ||
       Boolean(saferPrompt.trim()) ||
       Boolean(judgmentResponse.trim());
 
@@ -449,7 +451,7 @@ export default function DataBoundaryLab() {
     const draft = saveDraft('03-data-privacy-confidentiality', {
       selectedActions,
       selectedFlags,
-      sanitizedPacket,
+      sanitizedSummary,
       saferPrompt,
       judgmentResponse,
     });
@@ -458,7 +460,7 @@ export default function DataBoundaryLab() {
     draftLoaded,
     selectedActions,
     selectedFlags,
-    sanitizedPacket,
+    sanitizedSummary,
     saferPrompt,
     judgmentResponse,
   ]);
@@ -513,7 +515,7 @@ export default function DataBoundaryLab() {
         </p>
         <p>
           For each message, choose the handling action and the risk signals.
-          Then write the sanitized packet and safer prompt you would actually
+          Then write the sanitized summary and safer prompt you would actually
           use.
         </p>
         <blockquote>
@@ -589,17 +591,17 @@ export default function DataBoundaryLab() {
 
       <label className="data-lab__textarea">
         <span>
-          Create a sanitized packet that preserves useful public-service themes
+          Create a sanitized summary that preserves useful public-service themes
           but removes unnecessary exposure.
         </span>
         <textarea
-          onChange={(event) => setSanitizedPacket(event.target.value)}
+          onChange={(event) => setSanitizedSummary(event.target.value)}
           placeholder="Example: Resident reports benefits renewal link failure..."
           rows="7"
-          value={sanitizedPacket}
+          value={sanitizedSummary}
         />
-        <small className={packetQuality.passed ? 'is-passed' : ''}>
-          {textQualitySummary(packetQuality)}
+        <small className={summaryQuality.passed ? 'is-passed' : ''}>
+          {textQualitySummary(summaryQuality)}
         </small>
       </label>
 
@@ -617,10 +619,15 @@ export default function DataBoundaryLab() {
       </label>
 
       <label className="data-lab__textarea data-lab__judgment">
-        <span>Judgment Challenge: defend the minimum viable data packet.</span>
+        <span>Judgment Challenge: separate theme summary from case follow-up.</span>
+        <small className="data-lab__field-help">
+          Decide what can safely be summarized by AI and what must stay in an
+          approved office process because it involves a person, record, deadline,
+          accommodation, housing, or safety issue.
+        </small>
         <textarea
           onChange={(event) => setJudgmentResponse(event.target.value)}
-          placeholder="I would include only abstracted service themes... I would route accommodation, housing, and case-specific details through approved office channels because..."
+          placeholder="I would include only abstracted service themes such as renewal-link problems and upload failures. I would exclude or route case numbers, accommodation deadlines, and housing or safety details through approved office channels because..."
           rows="5"
           value={judgmentResponse}
         />
@@ -645,7 +652,7 @@ export default function DataBoundaryLab() {
           <div className="data-lab__warning">
             <p>
               Consider these visible issues as you revise. Extra risk flags are
-              fine; this list only names likely minimum issues.
+              fine; this list only names likely core issues.
             </p>
             <ul>
               {criticalDataHints.map((hint) => (
