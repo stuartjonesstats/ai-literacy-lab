@@ -173,6 +173,49 @@
   color: var(--accent-strong);
 }
 
+.data-lab__before-act {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 12px;
+}
+
+.data-lab__before-act h3 {
+  margin: 0 0 6px;
+}
+
+.data-lab__consideration-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.data-lab__consideration-grid button {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 6px;
+  min-height: 42px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.data-lab__consideration-grid button:hover {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  background: #f6fbf8;
+}
+
+.data-lab__consideration-grid button.is-selected,
+.data-lab__consideration-grid button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  background: #dff3ec;
+  box-shadow: inset 0 0 0 1px var(--accent);
+  font-weight: 800;
+}
+
 .data-lab__self-check {
   background: #f8fbf9;
 }
@@ -338,7 +381,8 @@
 @media (max-width: 760px) {
   .data-lab__action-guide,
   .data-lab__action-grid,
-  .data-lab__flag-grid {
+  .data-lab__flag-grid,
+  .data-lab__consideration-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -165,6 +165,33 @@ const finalActions = [
   },
 ];
 
+const recommendationConsiderations = [
+  {
+    id: 'service-delay',
+    label: 'Delay also harms residents waiting for access or answers.',
+  },
+  {
+    id: 'bad-routing',
+    label: 'Fast routing can miss urgent needs, appeals, or accommodations.',
+  },
+  {
+    id: 'data-exposure',
+    label: 'Useful analysis may still expose sensitive case context.',
+  },
+  {
+    id: 'review-capacity',
+    label: 'Human review only matters if reviewers have authority and time.',
+  },
+  {
+    id: 'metric-pressure',
+    label: 'Backlog metrics can reward speed over fairness or accuracy.',
+  },
+  {
+    id: 'pilot-boundary',
+    label: 'A narrow pilot can be safer than either full launch or total pause.',
+  },
+];
+
 const decisionFields = [
   {
     id: 'recommendation',
@@ -290,6 +317,8 @@ export default function CapstoneSimulationLab() {
   const [selectedDataControls, setSelectedDataControls] = useState([]);
   const [selectedHarmChecks, setSelectedHarmChecks] = useState([]);
   const [selectedReviewControls, setSelectedReviewControls] = useState([]);
+  const [recommendationConsiderationIds, setRecommendationConsiderationIds] =
+    useState([]);
   const [finalAction, setFinalAction] = useState('');
   const [memoFields, setMemoFields] = useState({});
   const [selfMarked, setSelfMarked] = useState({});
@@ -379,6 +408,7 @@ export default function CapstoneSimulationLab() {
     selectedDataControls.length >= 3 &&
     selectedHarmChecks.length >= 2 &&
     selectedReviewControls.length >= 3 &&
+    recommendationConsiderationIds.length >= 3 &&
     Boolean(finalAction);
   const ready =
     interactionComplete &&
@@ -387,7 +417,7 @@ export default function CapstoneSimulationLab() {
     memoQuality.passed;
   const completionRequirements = [
     {
-      label: 'Complete all six interaction sections',
+      label: 'Complete the structured interaction sections',
       met: interactionComplete,
     },
     {
@@ -412,6 +442,11 @@ export default function CapstoneSimulationLab() {
       setSelectedDataControls(Array.isArray(draft.selectedDataControls) ? draft.selectedDataControls : []);
       setSelectedHarmChecks(Array.isArray(draft.selectedHarmChecks) ? draft.selectedHarmChecks : []);
       setSelectedReviewControls(Array.isArray(draft.selectedReviewControls) ? draft.selectedReviewControls : []);
+      setRecommendationConsiderationIds(
+        Array.isArray(draft.recommendationConsiderationIds)
+          ? draft.recommendationConsiderationIds
+          : [],
+      );
       setFinalAction(typeof draft.finalAction === 'string' ? draft.finalAction : '');
       setMemoFields(draft.memoFields && typeof draft.memoFields === 'object' ? draft.memoFields : {});
       setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
@@ -430,6 +465,7 @@ export default function CapstoneSimulationLab() {
       selectedDataControls.length > 0 ||
       selectedHarmChecks.length > 0 ||
       selectedReviewControls.length > 0 ||
+      recommendationConsiderationIds.length > 0 ||
       Boolean(finalAction) ||
       Object.values(memoFields).some((value) => value?.trim());
 
@@ -443,6 +479,7 @@ export default function CapstoneSimulationLab() {
       selectedDataControls,
       selectedHarmChecks,
       selectedReviewControls,
+      recommendationConsiderationIds,
       finalAction,
       memoFields,
     });
@@ -454,6 +491,7 @@ export default function CapstoneSimulationLab() {
     selectedDataControls,
     selectedHarmChecks,
     selectedReviewControls,
+    recommendationConsiderationIds,
     finalAction,
     memoFields,
   ]);
@@ -464,6 +502,10 @@ export default function CapstoneSimulationLab() {
 
   function updateMemoField(fieldId, value) {
     setMemoFields((current) => ({ ...current, [fieldId]: value }));
+  }
+
+  function toggleRecommendationConsideration(id) {
+    setRecommendationConsiderationIds((current) => toggleValue(current, id));
   }
 
   function revealDebrief() {
@@ -478,6 +520,7 @@ export default function CapstoneSimulationLab() {
       selectedDataControls,
       selectedHarmChecks,
       selectedReviewControls,
+      recommendationConsiderationIds,
     });
     clearDraft('08-capstone');
     markModuleComplete('08-capstone');
@@ -677,6 +720,35 @@ export default function CapstoneSimulationLab() {
           privacy, fairness, accountability, and escalation when rights or
           urgent needs may be affected.
         </p>
+        <div className="capstone-lab__before-act">
+          <h3>Before You Recommend</h3>
+          <p>
+            Choose at least three pressures or duties that should be visible in
+            the final recommendation. The point is not to avoid risk entirely;
+            it is to name what the recommendation protects and what it accepts.
+          </p>
+          <div className="capstone-lab__consideration-grid">
+            {recommendationConsiderations.map((consideration) => (
+              <button
+                aria-pressed={recommendationConsiderationIds.includes(
+                  consideration.id,
+                )}
+                className={
+                  recommendationConsiderationIds.includes(consideration.id)
+                    ? 'is-selected'
+                    : ''
+                }
+                key={consideration.id}
+                onClick={() =>
+                  toggleRecommendationConsideration(consideration.id)
+                }
+                type="button"
+              >
+                {consideration.label}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="capstone-lab__option-row">
           {finalActions.map((action) => (
             <button

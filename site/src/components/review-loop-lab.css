@@ -216,10 +216,58 @@
   margin: 0 0 6px;
 }
 
+.review-lab__before-act {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 12px;
+}
+
+.review-lab__before-act > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.review-lab__before-act h4 {
+  margin: 0;
+}
+
+.review-lab__before-act span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  flex: 0 0 auto;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 4px 10px;
+}
+
+.review-lab__facet-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.review-lab__challenge-question {
+  color: var(--ink);
+  font-weight: 800;
+  margin: 0;
+}
+
 .review-lab__challenge-grid {
   display: grid;
   gap: 8px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.review-lab__challenge-grid button:disabled {
+  background: #f3f6f4;
+  border-color: var(--line);
+  color: var(--muted);
+  cursor: not-allowed;
 }
 
 .review-lab__challenge-feedback {
@@ -358,6 +406,7 @@
 @media (max-width: 860px) {
   .review-lab__button-grid,
   .review-lab__authority-grid,
+  .review-lab__facet-grid,
   .review-lab__challenge-grid {
     grid-template-columns: 1fr;
   }

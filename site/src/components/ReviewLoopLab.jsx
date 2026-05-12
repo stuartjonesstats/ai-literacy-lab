@@ -124,25 +124,48 @@ const cases = [
 const judgmentChallenge = {
   title: 'Judgment Challenge',
   prompt:
-    'A manager asks you to clear 30 AI-drafted notices before 5 p.m. The evidence panel fails for several files, the policy owner is unavailable, and the manager says delays will hurt team metrics. What makes the review meaningful?',
+    'You are the afternoon reviewer for 30 AI-drafted notices. Several evidence panels fail, the policy owner is unavailable, and the manager says delays will hurt team metrics. Before you answer, choose the workplace factors you would carry into the decision.',
+  facets: [
+    {
+      id: 'evidence-access',
+      label: 'Can I inspect the record?',
+    },
+    {
+      id: 'authority-to-pause',
+      label: 'Can I pause or route affected files?',
+    },
+    {
+      id: 'person-impact',
+      label: 'Could the notice affect benefits or rights?',
+    },
+    {
+      id: 'metric-pressure',
+      label: 'Is the metric pressure changing the review?',
+    },
+    {
+      id: 'documentation',
+      label: 'What will the review note preserve?',
+    },
+  ],
+  question: 'Now choose the review path you would take for the affected notices.',
   options: [
     {
       id: 'approve-pressure',
       label: 'Approve the batch and note that AI was confident',
       feedback:
-        'This treats review as a throughput step. Missing records and unclear authority make the approval weak.',
+        'This may protect today\'s metric, but it leaves the reviewer unable to explain the affected files when records and authority are missing.',
     },
     {
       id: 'spot-check',
       label: 'Spot-check a few files, then approve the rest',
       feedback:
-        'Spot-checking may help quality control, but it does not solve missing evidence for notices that affect individual rights or benefits.',
+        'Spot-checking can be useful for routine quality control. Here, it still leaves individual notices moving without their own evidence check.',
     },
     {
       id: 'pause-escalate',
       label: 'Pause affected notices and escalate the evidence and authority gaps',
       feedback:
-        'This recognizes that pressure does not make review meaningful. The human needs records, authority, and a real path to delay or change the output.',
+        'This keeps the reviewer accountable to the record: pause the affected files, document the gap, and route the authority question instead of clearing around it.',
     },
   ],
   bestOptions: ['pause-escalate'],
@@ -235,6 +258,7 @@ export default function ReviewLoopLab() {
   const [choices, setChoices] = useState({});
   const [authority, setAuthority] = useState({});
   const [openedEvidence, setOpenedEvidence] = useState({});
+  const [challengeFacets, setChallengeFacets] = useState([]);
   const [challengeChoice, setChallengeChoice] = useState('');
   const [note, setNote] = useState('');
   const [selfMarked, setSelfMarked] = useState({});
@@ -284,6 +308,7 @@ export default function ReviewLoopLab() {
   const challengePassed = judgmentChallenge.bestOptions.includes(
     challengeChoice,
   );
+  const challengeFacetsComplete = challengeFacets.length >= 2;
   const doesNotRubberStamp = rubricResults.find(
     (check) => check.id === 'does-not-rubber-stamp',
   )?.passed;
@@ -325,6 +350,7 @@ export default function ReviewLoopLab() {
   const ready =
     completedCases === cases.length &&
     inspectedEvidenceCount >= 4 &&
+    challengeFacetsComplete &&
     challengePassed &&
     noteQuality.passed;
   const completionRequirements = [
@@ -337,7 +363,11 @@ export default function ReviewLoopLab() {
       met: inspectedEvidenceCount >= 4,
     },
     {
-      label: 'Complete the judgment challenge without treating pressure as authority',
+      label: 'Choose at least two Before You Act factors for the judgment challenge',
+      met: challengeFacetsComplete,
+    },
+    {
+      label: 'Choose a review path that keeps pressure from replacing authority',
       met: challengePassed,
     },
     {
@@ -362,6 +392,9 @@ export default function ReviewLoopLab() {
           ? draft.openedEvidence
           : {},
       );
+      setChallengeFacets(
+        Array.isArray(draft.challengeFacets) ? draft.challengeFacets : [],
+      );
       setChallengeChoice(
         typeof draft.challengeChoice === 'string' ? draft.challengeChoice : '',
       );
@@ -380,6 +413,7 @@ export default function ReviewLoopLab() {
       Object.keys(choices).length > 0 ||
       Object.keys(authority).length > 0 ||
       Object.keys(openedEvidence).length > 0 ||
+      challengeFacets.length > 0 ||
       Boolean(challengeChoice) ||
       Boolean(note.trim());
 
@@ -391,11 +425,20 @@ export default function ReviewLoopLab() {
       choices,
       authority,
       openedEvidence,
+      challengeFacets,
       challengeChoice,
       note,
     });
     setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
-  }, [draftLoaded, choices, authority, openedEvidence, challengeChoice, note]);
+  }, [
+    draftLoaded,
+    choices,
+    authority,
+    openedEvidence,
+    challengeFacets,
+    challengeChoice,
+    note,
+  ]);
 
   function choose(caseId, decisionId) {
     setChoices((current) => ({ ...current, [caseId]: decisionId }));
@@ -410,6 +453,20 @@ export default function ReviewLoopLab() {
       ...current,
       [caseId]: !current[caseId],
     }));
+  }
+
+  function toggleChallengeFacet(facetId) {
+    setChallengeFacets((current) => {
+      if (current.includes(facetId)) {
+        return current.filter((id) => id !== facetId);
+      }
+
+      if (current.length >= 3) {
+        return [...current.slice(1), facetId];
+      }
+
+      return [...current, facetId];
+    });
   }
 
   function toggleSelfMarked(checkId) {
@@ -559,11 +616,36 @@ export default function ReviewLoopLab() {
             <p>{judgmentChallenge.prompt}</p>
           </div>
         </div>
+        <div className="review-lab__before-act">
+          <div>
+            <h4>Before You Act</h4>
+            <span aria-live="polite">{challengeFacets.length} selected</span>
+          </div>
+          <div className="review-lab__facet-grid">
+            {judgmentChallenge.facets.map((facet) => (
+              <button
+                aria-pressed={challengeFacets.includes(facet.id)}
+                className={
+                  challengeFacets.includes(facet.id) ? 'is-selected' : ''
+                }
+                key={facet.id}
+                onClick={() => toggleChallengeFacet(facet.id)}
+                type="button"
+              >
+                {facet.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <p className="review-lab__challenge-question">
+          {judgmentChallenge.question}
+        </p>
         <div className="review-lab__challenge-grid">
           {judgmentChallenge.options.map((option) => (
             <button
               aria-pressed={challengeChoice === option.id}
               className={challengeChoice === option.id ? 'is-selected' : ''}
+              disabled={!challengeFacetsComplete}
               key={option.id}
               onClick={() => setChallengeChoice(option.id)}
               type="button"

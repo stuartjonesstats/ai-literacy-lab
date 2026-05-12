@@ -122,11 +122,38 @@ const tasks = [
 ];
 
 const judgmentChallenge = {
+  role:
+    'You are the first person reviewing an overdue public-office response before it reaches a resident.',
   prompt:
-    'A director asks for an AI-assisted draft explaining why a resident was denied a housing assistance exception. The file contains income records, disability accommodation history, and a recent policy memo that may change the result. The director says the response is overdue and asks you to "just get a clean draft started."',
+    'A director asks for an AI-assisted draft explaining why a resident was denied a housing assistance exception. The request sounds narrow: clean up the explanation, make it easier to read, and help the office respond before the end of the day.',
+  pressure:
+    'The director is not trying to be careless. The response is overdue, the office is behind, and a clearer draft could help. But the file includes income records, disability accommodation history, and a recent policy memo that may change the result.',
   question:
     'Choose the most responsible path and explain the tension you are managing. There is not a perfect option: speed matters, but so do privacy, accuracy, legal rights, and human accountability.',
 };
+
+const beforeActOptions = [
+  {
+    id: 'facts',
+    label: 'What facts or policy sources would have to be verified first?',
+  },
+  {
+    id: 'data',
+    label: 'What sensitive details would be exposed to the tool?',
+  },
+  {
+    id: 'rights',
+    label: 'Could the draft affect a resident’s rights, appeal, or access?',
+  },
+  {
+    id: 'scope',
+    label: 'Is there a narrower AI task that would still help?',
+  },
+  {
+    id: 'owner',
+    label: 'Who is authorized to approve the final explanation?',
+  },
+];
 
 const rubricChecks = [
   {
@@ -177,6 +204,7 @@ export default function DecisionSort({ requiresReflection }) {
   const [twistsVisible, setTwistsVisible] = useState(false);
   const [reflection, setReflection] = useState('');
   const [challengeChoice, setChallengeChoice] = useState('');
+  const [challengeConsiderations, setChallengeConsiderations] = useState([]);
   const [challengeRationale, setChallengeRationale] = useState('');
   const [selfMarked, setSelfMarked] = useState({});
   const [showDebrief, setShowDebrief] = useState(false);
@@ -223,6 +251,11 @@ export default function DecisionSort({ requiresReflection }) {
       setChallengeChoice(
         typeof draft.challengeChoice === 'string' ? draft.challengeChoice : '',
       );
+      setChallengeConsiderations(
+        Array.isArray(draft.challengeConsiderations)
+          ? draft.challengeConsiderations
+          : [],
+      );
       setChallengeRationale(
         typeof draft.challengeRationale === 'string'
           ? draft.challengeRationale
@@ -244,6 +277,7 @@ export default function DecisionSort({ requiresReflection }) {
       twistsVisible ||
       Boolean(reflection.trim()) ||
       Boolean(challengeChoice) ||
+      challengeConsiderations.length > 0 ||
       Boolean(challengeRationale.trim());
 
     if (!hasWork) {
@@ -256,6 +290,7 @@ export default function DecisionSort({ requiresReflection }) {
       twistsVisible,
       reflection,
       challengeChoice,
+      challengeConsiderations,
       challengeRationale,
     });
     setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
@@ -266,6 +301,7 @@ export default function DecisionSort({ requiresReflection }) {
     twistsVisible,
     reflection,
     challengeChoice,
+    challengeConsiderations,
     challengeRationale,
   ]);
 
@@ -324,6 +360,7 @@ export default function DecisionSort({ requiresReflection }) {
   const finalReady =
     revisedCompleted === tasks.length &&
     reflectionQuality.passed &&
+    challengeConsiderations.length >= 2 &&
     Boolean(challengeChoice) &&
     challengeQuality.passed;
   const finalRequirements = [
@@ -334,6 +371,10 @@ export default function DecisionSort({ requiresReflection }) {
     {
       label: 'Write a substantive explanation of the context shift',
       met: reflectionQuality.passed,
+    },
+    {
+      label: 'Choose at least two Before You Act considerations',
+      met: challengeConsiderations.length >= 2,
     },
     {
       label: 'Choose a path in the judgment challenge',
@@ -355,6 +396,14 @@ export default function DecisionSort({ requiresReflection }) {
 
   function toggleSelfMarked(checkId) {
     setSelfMarked((current) => ({ ...current, [checkId]: !current[checkId] }));
+  }
+
+  function toggleChallengeConsideration(id) {
+    setChallengeConsiderations((current) =>
+      current.includes(id)
+        ? current.filter((item) => item !== id)
+        : [...current, id],
+    );
   }
 
   function revealTwists() {
@@ -511,7 +560,33 @@ export default function DecisionSort({ requiresReflection }) {
 
           <div className="decision-sort__challenge">
             <h3>Judgment Challenge</h3>
+            <p className="decision-sort__role">{judgmentChallenge.role}</p>
             <p>{judgmentChallenge.prompt}</p>
+            <p>{judgmentChallenge.pressure}</p>
+            <div className="decision-sort__before-act">
+              <h4>Before You Act</h4>
+              <p>
+                Choose at least two questions you would want in front of you
+                before deciding how AI can help.
+              </p>
+              <div className="decision-sort__consideration-grid">
+                {beforeActOptions.map((option) => (
+                  <button
+                    aria-pressed={challengeConsiderations.includes(option.id)}
+                    className={
+                      challengeConsiderations.includes(option.id)
+                        ? 'is-selected'
+                        : ''
+                    }
+                    key={option.id}
+                    onClick={() => toggleChallengeConsideration(option.id)}
+                    type="button"
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <p>{judgmentChallenge.question}</p>
             <div className="decision-sort__buttons">
               {categories.map(({ id, label, icon: Icon }) => (

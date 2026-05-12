@@ -108,6 +108,29 @@ const messages = [
   },
 ];
 
+const beforeActOptions = [
+  {
+    id: 'purpose',
+    label: 'Which details are actually needed for theme analysis?',
+  },
+  {
+    id: 'case-route',
+    label: 'Which messages are really case follow-up, not feedback?',
+  },
+  {
+    id: 'deadline',
+    label: 'Which deadlines or hearings could be harmed by delay?',
+  },
+  {
+    id: 'approved-tool',
+    label: 'Is this tool approved for this kind of office data?',
+  },
+  {
+    id: 'human-owner',
+    label: 'Who owns urgent or sensitive follow-up after the summary?',
+  },
+];
+
 const rubricChecks = [
   {
     id: 'no-direct-identifiers',
@@ -217,6 +240,7 @@ export default function DataBoundaryLab() {
   const [selectedFlags, setSelectedFlags] = useState({});
   const [sanitizedSummary, setSanitizedSummary] = useState('');
   const [saferPrompt, setSaferPrompt] = useState('');
+  const [beforeAct, setBeforeAct] = useState([]);
   const [judgmentResponse, setJudgmentResponse] = useState('');
   const [selfMarked, setSelfMarked] = useState({});
   const [showDebrief, setShowDebrief] = useState(false);
@@ -381,6 +405,7 @@ export default function DataBoundaryLab() {
     completedFlags === messages.length &&
     summaryQuality.passed &&
     promptQuality.passed &&
+    beforeAct.length >= 2 &&
     judgmentQuality.passed;
   const completionRequirements = [
     {
@@ -398,6 +423,10 @@ export default function DataBoundaryLab() {
     {
       label: 'Write a safer prompt',
       met: promptQuality.passed,
+    },
+    {
+      label: 'Choose at least two Before You Act considerations',
+      met: beforeAct.length >= 2,
     },
     {
       label: 'Complete the Judgment Challenge',
@@ -424,6 +453,7 @@ export default function DataBoundaryLab() {
           : '',
       );
       setSaferPrompt(typeof draft.saferPrompt === 'string' ? draft.saferPrompt : '');
+      setBeforeAct(Array.isArray(draft.beforeAct) ? draft.beforeAct : []);
       setJudgmentResponse(
         typeof draft.judgmentResponse === 'string' ? draft.judgmentResponse : '',
       );
@@ -442,6 +472,7 @@ export default function DataBoundaryLab() {
       Object.keys(selectedFlags).length > 0 ||
       Boolean(sanitizedSummary.trim()) ||
       Boolean(saferPrompt.trim()) ||
+      beforeAct.length > 0 ||
       Boolean(judgmentResponse.trim());
 
     if (!hasWork) {
@@ -453,6 +484,7 @@ export default function DataBoundaryLab() {
       selectedFlags,
       sanitizedSummary,
       saferPrompt,
+      beforeAct,
       judgmentResponse,
     });
     setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
@@ -462,6 +494,7 @@ export default function DataBoundaryLab() {
     selectedFlags,
     sanitizedSummary,
     saferPrompt,
+    beforeAct,
     judgmentResponse,
   ]);
 
@@ -481,6 +514,14 @@ export default function DataBoundaryLab() {
 
   function toggleSelfMarked(checkId) {
     setSelfMarked((current) => ({ ...current, [checkId]: !current[checkId] }));
+  }
+
+  function toggleBeforeAct(optionId) {
+    setBeforeAct((current) =>
+      current.includes(optionId)
+        ? current.filter((id) => id !== optionId)
+        : [...current, optionId],
+    );
   }
 
   function revealDebrief() {
@@ -620,6 +661,31 @@ export default function DataBoundaryLab() {
 
       <label className="data-lab__textarea data-lab__judgment">
         <span>Judgment Challenge: separate theme summary from case follow-up.</span>
+        <small className="data-lab__field-help">
+          Role: you are preparing a morning briefing for the office director.
+          The director wants useful process themes, not a case review, but the
+          inbox includes people who may need urgent help.
+        </small>
+        <div className="data-lab__before-act">
+          <h3>Before You Act</h3>
+          <p>
+            Choose at least two considerations that should shape the boundary
+            between AI-assisted theme analysis and approved case follow-up.
+          </p>
+          <div className="data-lab__consideration-grid">
+            {beforeActOptions.map((option) => (
+              <button
+                aria-pressed={beforeAct.includes(option.id)}
+                className={beforeAct.includes(option.id) ? 'is-selected' : ''}
+                key={option.id}
+                onClick={() => toggleBeforeAct(option.id)}
+                type="button"
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
         <small className="data-lab__field-help">
           Decide what can safely be summarized by AI and what must stay in an
           approved office process because it involves a person, record, deadline,

@@ -234,6 +234,94 @@ const usePlanFields = [
   },
 ];
 
+const roleplayMessages = [
+  {
+    id: 'deputy',
+    speaker: 'Deputy director, 4:42 PM',
+    text:
+      'Can you get me a one-page recommendation before I leave? I need something decisive for the renewal conversation tomorrow.',
+  },
+  {
+    id: 'procurement',
+    speaker: 'Procurement analyst, 4:47 PM',
+    text:
+      'The renewal window is tight. I can confirm dates later tonight, but I do not want unapproved pricing or vendor wording in a broad email.',
+  },
+  {
+    id: 'accessibility',
+    speaker: 'Accessibility coordinator, 4:51 PM',
+    text:
+      'Please do not state that the forms fail screen readers yet. We have concern notes, not final test language.',
+  },
+];
+
+const responseOptions = [
+  {
+    id: 'bounded-draft',
+    label: 'Draft a bounded briefing',
+    detail:
+      'Use AI for structure, label unverified claims, and keep the recommendation provisional until checks are done.',
+    responsible: true,
+  },
+  {
+    id: 'issues-only',
+    label: 'Send an issue list only',
+    detail:
+      'Move quickly by giving the deputy a decision frame, open questions, and what will be verified tonight.',
+    responsible: true,
+  },
+  {
+    id: 'confident-now',
+    label: 'Send a confident recommendation now',
+    detail:
+      'This meets the speed pressure but turns unresolved facts into apparent conclusions.',
+    responsible: false,
+  },
+  {
+    id: 'wait-all',
+    label: 'Wait for every fact',
+    detail:
+      'This protects accuracy but may miss the immediate need for a clear decision path.',
+    responsible: false,
+  },
+];
+
+const beforeActConsiderations = [
+  {
+    id: 'minimum-useful',
+    label: 'What is the minimum useful product by the deadline?',
+    prompt: 'Decide whether the deputy needs a recommendation or a verified issue frame.',
+  },
+  {
+    id: 'verification',
+    label: 'Which claims must be checked before recommendation language?',
+    prompt: 'Complaint volume, renewal dates, accessibility wording, and any legal or procurement limits.',
+    required: true,
+  },
+  {
+    id: 'data-boundary',
+    label: 'What details should not enter the AI prompt or broad email?',
+    prompt: 'Vendor names, quoted pricing, evaluator comments, and unnecessary requester details.',
+    required: true,
+  },
+  {
+    id: 'provisional-language',
+    label: 'How will uncertainty be visible?',
+    prompt: 'Use labels such as confirmed, unverified, open question, and needs counsel or procurement review.',
+  },
+  {
+    id: 'accountability',
+    label: 'Who signs off before the briefing is treated as a recommendation?',
+    prompt: 'Keep human ownership with the briefing author and the relevant office lead.',
+    required: true,
+  },
+  {
+    id: 'escalation',
+    label: 'What would trigger escalation instead of faster drafting?',
+    prompt: 'Legal deadlines, accessibility obligations, procurement exceptions, or sensitive details.',
+  },
+];
+
 function includesAny(text, terms) {
   const normalized = text.toLowerCase();
   return terms.some((term) => normalized.includes(term));
@@ -249,6 +337,8 @@ export default function WorkflowBuilderLab() {
   const [selectedFailures, setSelectedFailures] = useState([]);
   const [selectedStages, setSelectedStages] = useState([]);
   const [usePlan, setUsePlan] = useState({});
+  const [selectedRoleplayAction, setSelectedRoleplayAction] = useState('');
+  const [selectedConsiderations, setSelectedConsiderations] = useState([]);
   const [judgmentResponse, setJudgmentResponse] = useState('');
   const [selfMarked, setSelfMarked] = useState({});
   const [showDebrief, setShowDebrief] = useState(false);
@@ -286,8 +376,8 @@ export default function WorkflowBuilderLab() {
   const judgmentQuality = useMemo(
     () =>
       analyzeTextQuality(judgmentResponse, {
-        minChars: 140,
-        minWords: 26,
+        minChars: 90,
+        minWords: 18,
         requiredAny: ['speed', 'verify', 'minimize', 'accountable', 'because'],
         requiredGroups: [
           {
@@ -322,6 +412,9 @@ export default function WorkflowBuilderLab() {
   const rubricScore = rubricResults.filter((check) => check.passed).length;
   const selfMarkedScore = rubricResults.filter((check) => selfMarked[check.id])
     .length;
+  const selectedAction = responseOptions.find(
+    (option) => option.id === selectedRoleplayAction,
+  );
   const effectiveRubricScore =
     rubricScore +
     Math.min(
@@ -335,6 +428,8 @@ export default function WorkflowBuilderLab() {
     selectedStages.length >= 5 &&
     completedPlanFields === usePlanFields.length &&
     promptQuality.passed &&
+    Boolean(selectedAction?.responsible) &&
+    selectedConsiderations.length >= 3 &&
     judgmentQuality.passed;
   const completionRequirements = [
     {
@@ -354,6 +449,14 @@ export default function WorkflowBuilderLab() {
       met: promptQuality.passed,
     },
     {
+      label: 'Choose a responsible roleplay action',
+      met: Boolean(selectedAction?.responsible),
+    },
+    {
+      label: 'Complete the Before You Act consideration step',
+      met: selectedConsiderations.length >= 3,
+    },
+    {
       label: 'Complete the speed-vs-verification Judgment Challenge',
       met: judgmentQuality.passed,
     },
@@ -365,6 +468,16 @@ export default function WorkflowBuilderLab() {
       setSelectedFailures(Array.isArray(draft.selectedFailures) ? draft.selectedFailures : []);
       setSelectedStages(Array.isArray(draft.selectedStages) ? draft.selectedStages : []);
       setUsePlan(draft.usePlan && typeof draft.usePlan === 'object' ? draft.usePlan : {});
+      setSelectedRoleplayAction(
+        typeof draft.selectedRoleplayAction === 'string'
+          ? draft.selectedRoleplayAction
+          : '',
+      );
+      setSelectedConsiderations(
+        Array.isArray(draft.selectedConsiderations)
+          ? draft.selectedConsiderations
+          : [],
+      );
       setJudgmentResponse(
         typeof draft.judgmentResponse === 'string' ? draft.judgmentResponse : '',
       );
@@ -382,6 +495,8 @@ export default function WorkflowBuilderLab() {
       selectedFailures.length > 0 ||
       selectedStages.length > 0 ||
       Object.values(usePlan).some((value) => value?.trim()) ||
+      Boolean(selectedRoleplayAction) ||
+      selectedConsiderations.length > 0 ||
       Boolean(judgmentResponse.trim());
 
     if (!hasWork) {
@@ -392,10 +507,20 @@ export default function WorkflowBuilderLab() {
       selectedFailures,
       selectedStages,
       usePlan,
+      selectedRoleplayAction,
+      selectedConsiderations,
       judgmentResponse,
     });
     setDraftSavedAt(draft.updatedAt || draft.savedAt || null);
-  }, [draftLoaded, selectedFailures, selectedStages, usePlan, judgmentResponse]);
+  }, [
+    draftLoaded,
+    selectedFailures,
+    selectedStages,
+    usePlan,
+    selectedRoleplayAction,
+    selectedConsiderations,
+    judgmentResponse,
+  ]);
 
   function toggleFailure(id) {
     setSelectedFailures((current) => toggleValue(current, id));
@@ -403,6 +528,10 @@ export default function WorkflowBuilderLab() {
 
   function toggleStage(id) {
     setSelectedStages((current) => toggleValue(current, id));
+  }
+
+  function toggleConsideration(id) {
+    setSelectedConsiderations((current) => toggleValue(current, id));
   }
 
   function toggleSelfMarked(checkId) {
@@ -420,6 +549,8 @@ export default function WorkflowBuilderLab() {
       judgmentResponse,
       selectedStages,
       selectedFailures,
+      selectedRoleplayAction,
+      selectedConsiderations,
     });
     clearDraft('06-everyday-use');
     markModuleComplete('06-everyday-use');
@@ -531,22 +662,85 @@ export default function WorkflowBuilderLab() {
         </small>
       </div>
 
-      <label className="workflow-lab__prompt workflow-lab__judgment">
-        <span>Judgment Challenge: speed versus verification</span>
-        <small className="workflow-lab__field-help">
-          The briefing is due tomorrow. What will you draft quickly, what will
-          you refuse to shortcut, and who remains accountable?
-        </small>
-        <textarea
-          onChange={(event) => setJudgmentResponse(event.target.value)}
-          placeholder="I would use AI quickly to organize sanitized notes, but I would verify complaint volume, deadlines, accessibility claims, and approved wording before any recommendation because..."
-          rows="5"
-          value={judgmentResponse}
-        />
-        <small className={judgmentQuality.passed ? 'is-passed' : ''}>
-          {textQualitySummary(judgmentQuality)}
-        </small>
-      </label>
+      <div className="workflow-lab__roleplay">
+        <div className="workflow-lab__roleplay-header">
+          <div>
+            <p className="workflow-lab__eyebrow">Judgment Challenge</p>
+            <h3>Speed versus verification roleplay</h3>
+          </div>
+          <span>End of day</span>
+        </div>
+        <p>
+          You are the staff lead holding the draft. Three messages arrive before
+          close of business.
+        </p>
+        <div className="workflow-lab__message-stack">
+          {roleplayMessages.map((message) => (
+            <article key={message.id}>
+              <h4>{message.speaker}</h4>
+              <p>{message.text}</p>
+            </article>
+          ))}
+        </div>
+
+        <fieldset className="workflow-lab__choice-set">
+          <legend>First move</legend>
+          <div className="workflow-lab__option-grid">
+            {responseOptions.map((option) => (
+              <button
+                aria-pressed={selectedRoleplayAction === option.id}
+                className={selectedRoleplayAction === option.id ? 'is-selected' : ''}
+                key={option.id}
+                onClick={() => setSelectedRoleplayAction(option.id)}
+                type="button"
+              >
+                <strong>{option.label}</strong>
+                <span>{option.detail}</span>
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="workflow-lab__choice-set">
+          <legend>Before You Act</legend>
+          <p>
+            Select at least three considerations that should shape your next
+            move. Verification, data boundary, and accountability are often the
+            hardest to protect under deadline pressure.
+          </p>
+          <div className="workflow-lab__consideration-list">
+            {beforeActConsiderations.map((item) => (
+              <button
+                aria-pressed={selectedConsiderations.includes(item.id)}
+                className={selectedConsiderations.includes(item.id) ? 'is-selected' : ''}
+                key={item.id}
+                onClick={() => toggleConsideration(item.id)}
+                type="button"
+              >
+                <strong>{item.label}</strong>
+                <span>{item.prompt}</span>
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <label className="workflow-lab__prompt workflow-lab__judgment">
+          <span>Final written judgment</span>
+          <small className="workflow-lab__field-help">
+            Write two or three sentences naming the fast action, the verification
+            line you will not cross, the data boundary, and the accountable owner.
+          </small>
+          <textarea
+            onChange={(event) => setJudgmentResponse(event.target.value)}
+            placeholder="I would move quickly by sending an AI-organized issue frame from sanitized notes, but I would not make a renewal recommendation until complaint volume, dates, accessibility wording, and procurement limits are verified because..."
+            rows="4"
+            value={judgmentResponse}
+          />
+          <small className={judgmentQuality.passed ? 'is-passed' : ''}>
+            {textQualitySummary(judgmentQuality)}
+          </small>
+        </label>
+      </div>
 
       <div className="workflow-lab__self-check">
         <div className="workflow-lab__self-check-header">

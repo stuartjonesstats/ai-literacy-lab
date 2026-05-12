@@ -125,31 +125,58 @@ const cases = [
 const judgmentChallenge = {
   title: 'Judgment Challenge',
   prompt:
-    'A records office wants AI to both route requests and draft first responses. It may save hours, but the data contains exemptions, deadlines, and uneven request detail. Which next step best preserves the benefit while controlling risk?',
+    'You are in a records office planning meeting. The proposal is to use AI to route requests and draft first responses. It may save hours, but the request stream includes exemptions, deadlines, personal details, and uneven request quality. Before you answer, choose the factors you would put on the table.',
+  facets: [
+    {
+      id: 'deadline-exemption',
+      label: 'Deadline and exemption exposure',
+    },
+    {
+      id: 'narrow-role',
+      label: 'Narrow AI to intake support',
+    },
+    {
+      id: 'records-owner-review',
+      label: 'Records-owner review before response',
+    },
+    {
+      id: 'requester-impact',
+      label: 'Requester impact if wrong',
+    },
+    {
+      id: 'routine-volume',
+      label: 'Routine volume that still needs speed',
+    },
+    {
+      id: 'policy-open',
+      label: 'Unresolved policy questions',
+    },
+  ],
+  question: 'Now choose the next step you would recommend in the meeting.',
   options: [
     {
       id: 'proceed',
       label: 'Proceed because routing is administrative',
       feedback:
-        'This underweights deadline, disclosure, and exemption consequences.',
+        'Routing can look administrative, but this version also drafts first responses where deadlines, disclosure, and exemptions matter.',
     },
     {
       id: 'modify',
       label: 'Modify: limit AI to intake tags with human records-owner review',
       feedback:
-        'This keeps the benefit while narrowing the task and adding verification before any official response.',
+        'This preserves the speed benefit while narrowing the AI role and keeping official response judgment with a records owner.',
     },
     {
       id: 'pause',
       label: 'Pause all AI use until every records policy question is solved',
       feedback:
-        'Pausing may be justified in some offices, but the stronger proportional answer is to narrow the use and define review conditions.',
+        'A pause can be justified when policy is unsettled. For this meeting, a narrower intake-only use can also control the main risk without losing the whole benefit.',
     },
     {
       id: 'escalate',
       label: 'Escalate every request before using any AI support',
       feedback:
-        'Escalation is important for exceptions, but escalating every routine intake item may be disproportionate if the use is narrowed.',
+        'Escalation is important for exceptions and ambiguous requests. Escalating every routine intake item may be disproportionate once the AI role is narrowed.',
     },
   ],
   bestOptions: ['modify'],
@@ -225,6 +252,7 @@ export default function RiskEscalationLab() {
   const [showComplications, setShowComplications] = useState(false);
   const [revisedChoices, setRevisedChoices] = useState({});
   const [selectedDimensions, setSelectedDimensions] = useState({});
+  const [challengeFacets, setChallengeFacets] = useState([]);
   const [challengeChoice, setChallengeChoice] = useState('');
   const [note, setNote] = useState('');
   const [selfMarked, setSelfMarked] = useState({});
@@ -299,6 +327,7 @@ export default function RiskEscalationLab() {
   const challengePassed = judgmentChallenge.bestOptions.includes(
     challengeChoice,
   );
+  const challengeFacetsComplete = challengeFacets.length >= 2;
   const selfMarkedScore = rubricResults.filter((check) => selfMarked[check.id])
     .length;
   const effectiveRubricScore =
@@ -333,6 +362,7 @@ export default function RiskEscalationLab() {
   );
   const ready =
     revisedComplete &&
+    challengeFacetsComplete &&
     challengePassed &&
     noteQuality.passed;
   const completionRequirements = [
@@ -341,7 +371,11 @@ export default function RiskEscalationLab() {
       met: revisedComplete,
     },
     {
-      label: 'Complete the judgment challenge with a proportional control',
+      label: 'Choose at least two Before You Act factors for the judgment challenge',
+      met: challengeFacetsComplete,
+    },
+    {
+      label: 'Choose a proportional control for the records-office scenario',
       met: challengePassed,
     },
     {
@@ -369,6 +403,9 @@ export default function RiskEscalationLab() {
           ? draft.selectedDimensions
           : {},
       );
+      setChallengeFacets(
+        Array.isArray(draft.challengeFacets) ? draft.challengeFacets : [],
+      );
       setChallengeChoice(
         typeof draft.challengeChoice === 'string' ? draft.challengeChoice : '',
       );
@@ -388,6 +425,7 @@ export default function RiskEscalationLab() {
       showComplications ||
       Object.keys(revisedChoices).length > 0 ||
       Object.keys(selectedDimensions).length > 0 ||
+      challengeFacets.length > 0 ||
       Boolean(challengeChoice) ||
       Boolean(note.trim());
 
@@ -400,6 +438,7 @@ export default function RiskEscalationLab() {
       showComplications,
       revisedChoices,
       selectedDimensions,
+      challengeFacets,
       challengeChoice,
       note,
     });
@@ -410,6 +449,7 @@ export default function RiskEscalationLab() {
     showComplications,
     revisedChoices,
     selectedDimensions,
+    challengeFacets,
     challengeChoice,
     note,
   ]);
@@ -429,6 +469,20 @@ export default function RiskEscalationLab() {
         ? existing.filter((id) => id !== dimensionId)
         : [...existing, dimensionId];
       return { ...current, [caseId]: next };
+    });
+  }
+
+  function toggleChallengeFacet(facetId) {
+    setChallengeFacets((current) => {
+      if (current.includes(facetId)) {
+        return current.filter((id) => id !== facetId);
+      }
+
+      if (current.length >= 3) {
+        return [...current.slice(1), facetId];
+      }
+
+      return [...current, facetId];
     });
   }
 
@@ -599,11 +653,36 @@ export default function RiskEscalationLab() {
                 <p>{judgmentChallenge.prompt}</p>
               </div>
             </div>
+            <div className="risk-lab__before-act">
+              <div>
+                <h4>Before You Act</h4>
+                <span aria-live="polite">{challengeFacets.length} selected</span>
+              </div>
+              <div className="risk-lab__facet-grid">
+                {judgmentChallenge.facets.map((facet) => (
+                  <button
+                    aria-pressed={challengeFacets.includes(facet.id)}
+                    className={
+                      challengeFacets.includes(facet.id) ? 'is-selected' : ''
+                    }
+                    key={facet.id}
+                    onClick={() => toggleChallengeFacet(facet.id)}
+                    type="button"
+                  >
+                    {facet.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <p className="risk-lab__challenge-question">
+              {judgmentChallenge.question}
+            </p>
             <div className="risk-lab__challenge-grid">
               {judgmentChallenge.options.map((option) => (
                 <button
                   aria-pressed={challengeChoice === option.id}
                   className={challengeChoice === option.id ? 'is-selected' : ''}
+                  disabled={!challengeFacetsComplete}
                   key={option.id}
                   onClick={() => setChallengeChoice(option.id)}
                   type="button"

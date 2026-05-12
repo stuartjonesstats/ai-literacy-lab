@@ -42,6 +42,7 @@
 .workflow-lab__fieldset,
 .workflow-lab__stage-list,
 .workflow-lab__prompt,
+.workflow-lab__roleplay,
 .workflow-lab__self-check,
 .workflow-lab__debrief {
   border: 1px solid var(--line);
@@ -174,6 +175,95 @@
   color: var(--accent-strong);
 }
 
+.workflow-lab__roleplay {
+  background: #fbfcfd;
+}
+
+.workflow-lab__roleplay-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.workflow-lab__roleplay-header h3 {
+  margin-top: 0;
+}
+
+.workflow-lab__roleplay-header > span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.workflow-lab__message-stack,
+.workflow-lab__option-grid,
+.workflow-lab__consideration-list {
+  display: grid;
+  gap: 10px;
+}
+
+.workflow-lab__message-stack {
+  margin: 14px 0;
+}
+
+.workflow-lab__message-stack article {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--focus);
+  border-radius: 8px;
+  background: #fff;
+  padding: 12px;
+}
+
+.workflow-lab__message-stack h4,
+.workflow-lab__message-stack p {
+  margin: 0;
+}
+
+.workflow-lab__message-stack h4 {
+  margin-bottom: 6px;
+}
+
+.workflow-lab__choice-set {
+  background: #fff;
+}
+
+.workflow-lab__option-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.workflow-lab__option-grid button,
+.workflow-lab__consideration-list button {
+  align-items: start;
+  display: grid;
+  gap: 5px;
+  justify-content: start;
+  min-height: 96px;
+  padding: 12px;
+  text-align: left;
+}
+
+.workflow-lab__option-grid button span,
+.workflow-lab__consideration-list button span {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.workflow-lab__option-grid button.is-selected span,
+.workflow-lab__option-grid button[aria-pressed="true"] span,
+.workflow-lab__consideration-list button.is-selected span,
+.workflow-lab__consideration-list button[aria-pressed="true"] span {
+  color: var(--accent-strong);
+}
+
+.workflow-lab__consideration-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .workflow-lab__self-check-header {
   display: flex;
   align-items: center;
@@ -301,6 +391,8 @@
 
 @media (max-width: 920px) {
   .workflow-lab__failure-grid,
+  .workflow-lab__option-grid,
+  .workflow-lab__consideration-list,
   .workflow-lab__stage-list article {
     grid-template-columns: 1fr;
   }
