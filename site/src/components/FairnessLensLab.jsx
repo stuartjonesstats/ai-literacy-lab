@@ -355,6 +355,15 @@ export default function FairnessLensLab() {
         </p>
       </div>
 
+      <aside className="learning-pause" aria-labelledby="module-4-pause">
+        <h3 id="module-4-pause">Who Gets Seen?</h3>
+        <ul>
+          <li>Whose work would be easy for the criteria to recognize?</li>
+          <li>Whose contribution might be real but harder to document?</li>
+          <li>What proxy could look neutral while favoring one group or role?</li>
+        </ul>
+      </aside>
+
       <div className="fairness-lab__criteria">
         <h3>AI-generated criteria</h3>
         <ol>

@@ -473,6 +473,15 @@ export default function DecisionSort({ requiresReflection }) {
         </p>
       </div>
 
+      <aside className="learning-pause" aria-labelledby="module-1-pause">
+        <h3 id="module-1-pause">Pause Before Sorting</h3>
+        <ul>
+          <li>What assumption are you making about how routine this task is?</li>
+          <li>What would make the first answer incomplete or misleading?</li>
+          <li>Who could be affected if the output is wrong or over-trusted?</li>
+        </ul>
+      </aside>
+
       <div className="decision-sort__category-guide">
         {categories.map(({ id, short, description, icon: Icon }) => (
           <article key={id}>

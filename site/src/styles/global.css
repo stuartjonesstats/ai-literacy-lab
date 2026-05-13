@@ -561,6 +561,29 @@ p {
   margin: 0;
 }
 
+.learning-pause {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  background: #f8fbf9;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 18px 0;
+}
+
+.learning-pause h3 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.learning-pause ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.learning-pause li {
+  margin-bottom: 5px;
+}
+
 .reflection-bookend {
   border: 1px solid var(--accent);
   background: var(--surface);

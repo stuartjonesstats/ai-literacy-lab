@@ -572,6 +572,15 @@ export default function DataBoundaryLab() {
         </blockquote>
       </div>
 
+      <aside className="learning-pause" aria-labelledby="module-3-pause">
+        <h3 id="module-3-pause">Purpose Before Data</h3>
+        <ul>
+          <li>What is the minimum information needed for the service-improvement goal?</li>
+          <li>Which details belong in an approved case route rather than a general AI prompt?</li>
+          <li>What would be exposed if the original message were pasted as-is?</li>
+        </ul>
+      </aside>
+
       <div className="data-lab__action-guide">
         {actions.map((action) => (
           <article key={action.id}>

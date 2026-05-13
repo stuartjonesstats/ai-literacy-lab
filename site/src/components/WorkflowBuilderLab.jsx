@@ -598,6 +598,15 @@ export default function WorkflowBuilderLab() {
         </ul>
       </div>
 
+      <aside className="learning-pause" aria-labelledby="module-6-pause">
+        <h3 id="module-6-pause">Decide Before Automating</h3>
+        <ul>
+          <li>What decision are you actually making, and what can AI only support?</li>
+          <li>What must be verified before a recommendation sounds final?</li>
+          <li>Where should human ownership stay visible in the workflow?</li>
+        </ul>
+      </aside>
+
       <fieldset className="workflow-lab__fieldset">
         <legend>What makes the single-prompt workflow fragile?</legend>
         <div className="workflow-lab__failure-grid">
