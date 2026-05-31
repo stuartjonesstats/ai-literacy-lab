@@ -78,7 +78,9 @@ The project is curriculum-as-code:
 
 The web stack is Astro + MDX + small React interactive components. It is built
 to work as a static site with no accounts, database, analytics, or required
-backend.
+backend. Optional Google Analytics can be enabled at build time with
+`PUBLIC_GA_MEASUREMENT_ID`; the GitHub Pages workflow reads this from the
+repository variable `GA_MEASUREMENT_ID`.
 
 ## Professional Use
 
